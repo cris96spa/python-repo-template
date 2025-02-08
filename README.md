@@ -1,0 +1,3 @@
+# Python Repository Template
+
+Featuring UV, Justfile, Ruff, Mypy, Pytest ...
