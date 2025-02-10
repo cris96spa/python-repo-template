@@ -6,6 +6,9 @@ dev-sync:
 prod-sync:
 	uv sync --all-extras --no-dev --cache-dir .uv_cache
 
+install-hooks:
+	uv run pre-commit install
+
 format:
 	uv run ruff format
 

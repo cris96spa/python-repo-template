@@ -15,6 +15,7 @@ The ultimate 2025 Python repository template. Simple, fast, customizable, and re
 
 ### Infrastructure
 
+- 🛫 Pre-commit hooks
 - 🐳 Docker support with multi-stage builds and distroless images
 - 🔄 GitHub Actions CI/CD pipeline
 
@@ -36,6 +37,12 @@ just prod-sync
 ```
 
 In both cases, all extra dependencies will be installed (notice that the current pyproject.toml file has no extra dependencies).
+
+You also need to install the pre-commit hooks with:
+
+```bash
+just install-hooks
+```
 
 ### Formatting, Linting and Testing
 
