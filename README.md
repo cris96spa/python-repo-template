@@ -1,6 +1,6 @@
 # Python Repository Template
 
-The ultimate 2025 Python repository template.
+The ultimate 2025 Python repository template. Simple, fast, customizable, and ready to use.
 
 ## 🎯 Core Features
 
@@ -82,7 +82,7 @@ just dockerize
 
 ### Github Actions
 
-The template includes a Github Actions workflow that runs tests and linters on every push on the main branch. You can find the workflow file in `.github/workflows/main.yml`.
+The template includes a Github Actions workflow that runs tests and linters on every push on the main branch. You can find the workflow file in `.github/workflows/main-list-test.yml`.
 
 
 
