@@ -2,19 +2,26 @@
 
 The ultimate 2025 Python repository template.
 
-## Features
+## 🎯 Core Features
 
-- [x] [`UV`](https://docs.astral.sh/uv/) as package manager.
-- [X] [`Just`](https://github.com/casey/just) as command runner, with many useful shortcuts.
-- [x] [`Ruff`](https://docs.astral.sh/ruff/) and [`Mypy`](https://mypy.readthedocs.io/en/stable/) for efficient linting, formatting and type checking.
-- [x] [`Pytest`](https://docs.pytest.org/en/stable/) for testing.
-- [x] [`Loguru`](https://loguru.readthedocs.io/en/stable/) setup for logging.
-- [x] [`Docker`](https://www.docker.com/) support, with a multi stage Dockerfile.
-- [x] [`Github Actions CI\CD`] setup, with a workflow that runs tests and linters on every push on the main branch.
+### Development Tools
+
+- 📦 UV - Ultra-fast Python package manager
+- 🚀 Just - Modern command runner with powerful features
+- 💅 Ruff - Lightning-fast linter and formatter
+- 🔍 Mypy - Static type checker
+- 🧪 Pytest - Testing framework with fixtures and plugins
+- 🧾 Loguru - Python logging made simple
+
+### Infrastructure
+
+- 🐳 Docker support with multi-stage builds and distroless images
+- 🔄 GitHub Actions CI/CD pipeline
+
 
 ## Usage
 
-The templated is based on [UV](https://docs.astral.sh/) as package manager and [Just](https://github.com/casey/just) as command runner. You need to have both installed in your system to use this template.
+The template is based on [UV](https://docs.astral.sh/) as package manager and [Just](https://github.com/casey/just) as command runner. You need to have both installed in your system to use this template.
 
 Once you have those, you can just run
 

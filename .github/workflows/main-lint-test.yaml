@@ -27,5 +27,5 @@ jobs:
       - name: 🦾 Install the project
         run: just dev-sync
           
-      - name: 💅 🧪 Validate
+      - name: 💅 🧪 Format, Lint and test
         run: just validate
