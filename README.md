@@ -39,6 +39,8 @@ In both cases, all extra dependencies will be installed (notice that the current
 
 ### Formatting, Linting and Testing
 
+You can configure Ruff by editing the `.ruff.toml` file. It is currently set to the default configuration.
+
 Format your code:
 
 ```bash
