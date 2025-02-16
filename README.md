@@ -2,6 +2,9 @@
 
 The ultimate 2025 Python repository template. Simple, fast, customizable, and ready to use.
 
+---
+I wrote a blog post about this template! Check it out [here](https://giovannigiacometti.github.io/posts/python-template/)
+
 ## 🎯 Core Features
 
 ### Development Tools
