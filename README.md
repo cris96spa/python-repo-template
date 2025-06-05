@@ -94,8 +94,8 @@ just dockerize
 
 ### Github Actions
 
-The template includes a Github Actions workflow that runs tests and linters on every push on the main branch. You can find the workflow file in `.github/workflows/main-list-test.yml`.
+The template includes two Github Actions workflows.
 
+The first one runs tests and linters on every push on the main and dev branches. You can find the workflow file in `.github/workflows/main-list-test.yml`.
 
-
-
+The second one is triggered on every tag push and can also be triggered manually. It builds the distribution and uploads it to PyPI. You can find the workflow file in `.github/workflows/publish.yaml`.

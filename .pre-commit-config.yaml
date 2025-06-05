@@ -1,11 +1,15 @@
-default_language_version:
-  python: python3.12
 repos:
-  - repo: local
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
     hooks:
-      - id: format
-        name: format
-        entry: just format
-        require_serial: true
-        language: system
-        pass_filenames: false
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-docstring-first
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.11
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
