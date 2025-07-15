@@ -2,9 +2,6 @@
 
 The ultimate 2025 Python repository template. Simple, fast, customizable, and ready to use.
 
----
-I wrote a blog post about this template! Check it out [here](https://giovannigiacometti.github.io/posts/python-template/)
-
 ## 🎯 Core Features
 
 ### Development Tools
@@ -99,3 +96,6 @@ The template includes two Github Actions workflows.
 The first one runs tests and linters on every push on the main and dev branches. You can find the workflow file in `.github/workflows/main-list-test.yml`.
 
 The second one is triggered on every tag push and can also be triggered manually. It builds the distribution and uploads it to PyPI. You can find the workflow file in `.github/workflows/publish.yaml`.
+
+## Greetings
+A big thank you to [Giovanni Giacometti](https://github.com/GiovanniGiacometti) for creating this template and sharing it with the community. This template is a fork of his original work, which can be found at [giovannigiacometti/python-repository-template](https://github.com/GiovanniGiacometti/python-repo-template).
