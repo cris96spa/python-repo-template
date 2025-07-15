@@ -17,3 +17,24 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.9.5",
 ]
+
+torch = [
+    "torch==2.4.0+cu124 ; platform_system == 'Windows'",
+    "torch==2.4.0 ; platform_system != 'Windows'",
+    "torchvision==0.19.0+cu124 ; platform_system == 'Windows'",
+    "torchvision==0.19.0 ; platform_system != 'Windows'",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-gpu", marker = "platform_system == 'Windows'" }
+torchvision = { index = "pytorch-gpu", marker = "platform_system == 'Windows'" }
+
+[[tool.uv.index]]
+name = "pytorch-gpu"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[[tool.uv.index]]
+name = "default_pypy"
+url = "https://pypi.org/simple/"
+default = true

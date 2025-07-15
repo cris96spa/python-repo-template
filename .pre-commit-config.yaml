@@ -7,9 +7,32 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: check-docstring-first
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.11
     hooks:
-      - id: ruff-check
-      - id: ruff-format
+      - id: lint
+        name: Lint Ruff
+        entry: ruff check
+        language: system
+        require_serial: true
+        types_or: [python]
+        exclude: "docs"
+      - id: format
+        name: Format Ruff
+        entry: ruff format
+        language: system
+        require_serial: true
+        types_or: [python]
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v2.1.1
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [] # optional: list of Conventional Commits types to allow e.g. [feat, fix, ci, chore, test]
