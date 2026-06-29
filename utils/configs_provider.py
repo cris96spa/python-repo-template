@@ -11,10 +11,10 @@ class BaseConfigProvider(metaclass=SingletonMeta):
 
     @property
     def global_config(self) -> GlobalConfig:
-        """Get the global config."""
+        """Obtain the global configuration settings."""
         return self._global_config
 
     @property
     def mlflow_configs(self) -> MlflowLoggerConfig:
-        """Get the MLflow logger config."""
+        """Obtain the MLflow logger configuration settings."""
         return self._mlflow_config

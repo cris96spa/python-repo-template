@@ -32,9 +32,7 @@ class YamlBaseSettings(BaseSettings):
                 YamlConfigSettingsSource(
                     settings_cls=settings_cls,
                     yaml_file=yaml_path,
-                    yaml_file_encoding=cls.model_config.get(
-                        "yaml_file_encoding", "utf-8"
-                    ),
+                    yaml_file_encoding=cls.model_config.get("yaml_file_encoding", "utf-8"),
                 ),
             )
         return sources

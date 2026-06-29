@@ -1,6 +1,7 @@
 .PHONY: all $(MAKECMDGOALS)
 DOC_PORT ?= 8031
 PROJECT_NAME ?= python_repo_template
+PYTHON_FORMAT_TARGETS ?= main.py $(PROJECT_NAME) tests utils
 help: # print all the available targets
 	@echo "\nAvailable targets:\n"
 	@grep -E '^[a-zA-Z_-]+:.*?# .*$$' $(MAKEFILE_LIST) | sed 's/:.*#/\t/' | column -t -s '	' ; echo
@@ -21,10 +22,10 @@ install-test: # install test dependencies
 	uv sync --group test
 
 format: # format the code with the ruff tool
-	uv run ruff format $(PROJECT_NAME) utils
+	uv run ruff format $(PYTHON_FORMAT_TARGETS)
 
 format-check: # check the formatting code with ruff
-	uv run ruff format --check $(PROJECT_NAME) utils
+	uv run ruff format --check $(PYTHON_FORMAT_TARGETS)
 
 lint: # check the code style
 	uv run ruff check $(PROJECT_NAME) utils

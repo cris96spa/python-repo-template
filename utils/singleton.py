@@ -1,12 +1,11 @@
 import threading
+from typing import Any, ClassVar
 
 
 class SingletonMeta(type):
-    """
-    Thread-safe implementation of Singleton as a metaclass.
-    """
+    """Thread-safe implementation of Singleton as a metaclass."""
 
-    _instances = {}
+    _instances: ClassVar[dict[type, Any]] = {}
     _lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):

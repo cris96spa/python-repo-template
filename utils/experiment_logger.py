@@ -90,7 +90,7 @@ class MlflowLogger(BaseExperimentLogger):
                 mlflow.log_param(key, json.dumps(value))
 
     @override
-    def log_experiment_data(self, data_paths: list[Path]):
+    def log_experiment_data(self, data_paths: list[Path]) -> None:
         """Logs experiment data files as MLflow artifacts and, if applicable, as tables.
 
         For each path in `data_paths`, this method:
@@ -106,6 +106,7 @@ class MlflowLogger(BaseExperimentLogger):
         Notes:
             - If reading a JSON file fails, the exception is silently ignored.
             - Requires `mlflow`, `pandas`, and a configured logger.
+
         """
         for data_path in data_paths:
             if not data_path.exists():
