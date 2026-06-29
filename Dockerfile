@@ -1,44 +1,55 @@
-# Example taken from https://github.com/astral-sh/uv-docker-example/blob/main/multistage.Dockerfile
+ARG PYTHON_VERSION=3.12
 
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+# --- Base Stage --- #
+FROM python:${PYTHON_VERSION}-slim AS base
+ARG UID=10000
+ARG GID=10000
+ARG PROJECT_NAME=python_repo_template
+ARG USER=app
+ARG WORKDIR=/app
 
-# Bytecode compilation, copy from the cache instead of linking, since it is
-# a mounted volume
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+ENV UV_CACHE_DIR=$WORKDIR/.uv_cache \
+    UV_PYTHON_DOWNLOADS=0 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UID=$UID \
+    GID=$GID \
+    PROJECT_NAME=$PROJECT_NAME \
+    PATH="$WORKDIR/.venv/bin:/usr/local/bin:$PATH"
 
-# Disable Python downloads, because we want to use the system interpreter
-# across both images. 
-ENV UV_PYTHON_DOWNLOADS=0
+RUN groupadd --system --gid $GID $USER \
+    && useradd --system --uid $UID --gid $GID -m -d /home/$USER $USER \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    git ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh
 
-WORKDIR /app
-RUN --mount=type=cache,target=/root/.cache/uv \
+WORKDIR $WORKDIR
+
+# --- Builder Stage --- #
+FROM base AS builder
+
+RUN --mount=type=secret,id=netrc,target=/root/.netrc,uid=0,gid=0,mode=0600 \
+    --mount=type=cache,target=$UV_CACHE_DIR,uid=$UID,gid=$GID \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-dev --no-editable --all-extras
+    --mount=type=bind,source=README.md,target=README.md \
+    --mount=type=bind,source=LICENSE,target=LICENSE \
+    uv sync --locked --no-install-project --no-dev
 
-ADD python_repo_template /app/python_repo_template
-ADD main.py /app/main.py
-ADD pyproject.toml /app/pyproject.toml
+COPY --chown=$USER:$USER uv.lock pyproject.toml README.md LICENSE ./
 
-# Copy the lock file to make sure the Docker environment has the same 
-# dependencies as the development environment
-ADD uv.lock /app/uv.lock 
+RUN --mount=type=secret,id=netrc,target=/root/.netrc,uid=0,gid=0,mode=0600 \
+    --mount=type=cache,target=$UV_CACHE_DIR,uid=$UID,gid=$GID \
+    uv sync --locked --no-dev
 
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-editable --all-extras
+# --- Runtime Stage --- #
+FROM base AS runtime
+COPY --from=builder --chown=$USER:$USER $WORKDIR $WORKDIR
 
+COPY --chown=$USER:$USER $PROJECT_NAME ./$PROJECT_NAME
+COPY --chown=$USER:$USER main.py ./main.py
 
-# Then, use a final image without uv
-# It is important to use the image that matches the builder, as the path to the
-# Python executable must be the same
-FROM python:3.12-slim-bookworm
-
-WORKDIR /app
-
-# Copy the application from the builder
-COPY --from=builder --chown=app:app /app /app
-
-# Place executables in the environment at the front of the path
-ENV PATH="/app/.venv/bin:$PATH"
-
+USER $USER
 CMD ["python", "main.py", "--number", "10"]
