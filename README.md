@@ -1,5 +1,7 @@
-# Python Repository Template
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat-square&logo=github)](https://cris96spa.github.io/python-repo-template/)
+
+# Python Repository Template
+
 The ultimate 2026 Python repository template. Simple, fast, customizable, and ready to use.
 
 ## 🎯 Core Features

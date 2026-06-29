@@ -95,4 +95,5 @@ extra_css:
 
 nav:
   - "Home": index.md
+  - "Updating from the Template": updating-from-template.md
   - "API Reference": api/
