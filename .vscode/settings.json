@@ -5,6 +5,7 @@
       "source.organizeImports": "explicit"
     }
   },
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -12,9 +13,15 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.formatOnSave": true,
-  "python.testing.pytestArgs": ["tests"],
+  "python.testing.pytestArgs": ["."],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
-  "python.languageServer": "Pylance",
-  "python.analysis.indexing": true
+
+  "ltex.language": "en-US",
+  "ltex.enabled": true,
+  "ltex.languageIds": ["markdown", "plaintext", "html", "jinja", "jinja2"],
+  "files.associations": {
+    "*.jinja": "jinja",
+    "*.j2": "jinja"
+  }
 }

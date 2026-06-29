@@ -7,69 +7,60 @@ The ultimate 2025 Python repository template. Simple, fast, customizable, and re
 ### Development Tools
 
 - 📦 UV - Ultra-fast Python package manager
-- 🚀 Just - Modern command runner with powerful features
+- 🚀 Make - Command runner
 - 💅 Ruff - Lightning-fast linter and formatter
-- 🔍 Mypy - Static type checker
 - 🧪 Pytest - Testing framework with fixtures and plugins
-- 🧾 Loguru - Python logging made simple
+- 🧾 Rich - Elegant logging via standard `logging` module
 
 ### Infrastructure
 
 - 🛫 Pre-commit hooks
-- 🐳 Docker support with multi-stage builds and distroless images
+- 🐳 Docker support with multi-stage builds
 - 🔄 GitHub Actions CI/CD pipeline
 
 
 ## Usage
 
-The template is based on [UV](https://docs.astral.sh/) as package manager and [Just](https://github.com/casey/just) as command runner. You need to have both installed in your system to use this template.
+The template is based on [UV](https://docs.astral.sh/) as package manager and [Make](https://www.gnu.org/software/make/) as command runner. You need to have both installed in your system to use this template.
 
-Once you have those, you can just run
+Once you have those, you can run
 
 ```bash
-just dev-sync
+make dev
 ```
 
-to create a virtual environment and install all the dependencies, including the development ones. If instead you want to build a "production-like" environment, you can run
+to create a virtual environment and install all the dependencies, including the development ones, and set up pre-commit hooks. If instead you want to install only production dependencies, you can run
 
 ```bash
-just prod-sync
+make install
 ```
 
-In both cases, all extra dependencies will be installed (notice that the current pyproject.toml file has no extra dependencies).
-
-You also need to install the pre-commit hooks with:
+You can see all available targets with:
 
 ```bash
-just install-hooks
+make help
 ```
 
 ### Formatting, Linting and Testing
 
-You can configure Ruff by editing the `.ruff.toml` file. It is currently set to the default configuration.
+You can configure Ruff by editing the `[tool.ruff]` section in `pyproject.toml`.
 
 Format your code:
 
 ```bash
-just format
+make format
 ```
 
-Run linters (ruff and mypy):
+Run linters:
 
 ```bash
-just lint
+make lint
 ```
 
-Run tests:
+Check formatting without modifying files:
 
 ```bash
-just test
-```
-
-Do all of the above:
-
-```bash
-just validate
+make format-check
 ```
 
 ### Executing
@@ -78,15 +69,23 @@ The code is a simple hello world example, which just requires a number as input.
 You can run the code with:
 
 ```bash
-just run 5
+uv run python main.py --number 5
 ```
 
 ### Docker
 
-The template includes a multi stage Dockerfile, which produces an image with the code and the dependencies installed. You can build the image with:
+The template includes a multi-stage Dockerfile, which produces an image with the code and the dependencies installed. You can build the image with:
 
 ```bash
-just dockerize
+docker build -t python-repo-template .
+```
+
+### Documentation
+
+Build and serve the documentation locally:
+
+```bash
+make doc
 ```
 
 ### Github Actions

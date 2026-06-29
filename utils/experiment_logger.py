@@ -76,9 +76,7 @@ class MlflowLogger(BaseExperimentLogger):
         if self._config.trace:
             mlflow.openai.autolog()
             logger.info("MLflow OpenAI autologging enabled.")
-        logger.info(
-            "MLflow logging enabled with async mode on %s", self._config.tracking_uri
-        )
+        logger.info("MLflow logging enabled with async mode on %s", self._config.tracking_uri)
 
     @override
     def log_dict(self, data: dict) -> None:
@@ -111,9 +109,7 @@ class MlflowLogger(BaseExperimentLogger):
         """
         for data_path in data_paths:
             if not data_path.exists():
-                logger.warning(
-                    "Data path %s does not exist, skipping logging.", data_path
-                )
+                logger.warning("Data path %s does not exist, skipping logging.", data_path)
                 continue
 
             # Note that MLFlow does not allow csv files to be logged as tables
@@ -156,9 +152,7 @@ class MlflowLogger(BaseExperimentLogger):
 
                 mlflow.log_artifact(
                     str(dest_path),
-                    artifact_path=os.path.join(
-                        self._artifact_path, file_path.parent.name
-                    ),
+                    artifact_path=os.path.join(self._artifact_path, file_path.parent.name),
                 )
 
     @override
