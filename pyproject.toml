@@ -11,6 +11,8 @@ dependencies = [
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
     "pyyaml>=6.0.2",
+    "polars>=1.4.0,<2.0.0",
+    "mlflow>=3.10.0,<3.20.0",
 ]
 
 [dependency-groups]

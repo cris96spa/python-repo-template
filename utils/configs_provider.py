@@ -1,4 +1,5 @@
-from utils.configs import GlobalConfig, MlflowLoggerConfig
+from utils.configs import GlobalConfig
+from utils.experiment_logger import MlflowLoggerConfig
 from utils.singleton import SingletonMeta
 
 
@@ -7,14 +8,14 @@ class BaseConfigProvider(metaclass=SingletonMeta):
 
     def __init__(self):
         self._global_config = GlobalConfig()
-        self._mlflow_config = MlflowLoggerConfig()
+        self._mlflow_config = MlflowLoggerConfig()  # type: ignore[call-arg]
 
     @property
     def global_config(self) -> GlobalConfig:
-        """Obtain the global configuration settings."""
+        """Global configuration settings."""
         return self._global_config
 
     @property
     def mlflow_configs(self) -> MlflowLoggerConfig:
-        """Obtain the MLflow logger configuration settings."""
+        """MLflow logger configuration settings."""
         return self._mlflow_config
