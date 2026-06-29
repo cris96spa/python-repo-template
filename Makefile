@@ -38,3 +38,9 @@ lint-doc: # check the docstring style
 
 doc: # create the project documentation; Build and visualize documentation through a local server
 	uv run properdocs serve -f properdocs.yml --dev-addr 0.0.0.0:$(DOC_PORT)
+
+test: # launch the tests
+	uv run pytest -v -n auto --junitxml=tests_report.xml --doctest-modules --cov=$(PROJECT_NAME) --cov-report xml:coverage.xml --durations=0 tests
+
+pre-commit: # run pre-commit hooks
+	uv run pre-commit run --all-files

@@ -3,7 +3,6 @@ description: format, lint, test code
 runs:
   using: "composite"
   steps:
-
     - name: 📦 Install uv
       uses: astral-sh/setup-uv@v6
 
@@ -12,13 +11,14 @@ runs:
       with:
         python-version: ${{ env.PY_VERSION }}
 
-    - name: 🚀 Install just
-      uses: extractions/setup-just@v2
-
     - name: 🦾 Install dependencies
-      run: just dev-sync
+      run: make install-dev
       shell: bash
 
     - name: 💅 🧪 Validate!
-      run: just validate
+      run: |
+        make format-check
+        make lint
+        make lint-doc
+        make test
       shell: bash

@@ -15,8 +15,8 @@ jobs:
   format-lint-test:
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-          python-version: ["3.10", "3.11", "3.12", "3.13"]
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: 🛎️ Checkout
@@ -44,7 +44,7 @@ jobs:
       - name: 🏗️ Build distribution
         run: uv build
 
-    # REMEMBER TO SET THE PYPI_TOKEN SECRET IN YOUR REPO SETTINGS!!
+      # REMEMBER TO SET THE PYPI_TOKEN SECRET IN YOUR REPO SETTINGS!!
       - name: 📩 Set PYPI token as env variable for UV
         run: echo "UV_PUBLISH_TOKEN=${{ secrets.PYPI_TOKEN }}" >> $GITHUB_ENV
 
