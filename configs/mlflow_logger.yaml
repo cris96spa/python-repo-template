@@ -1,7 +1,4 @@
 tracking_uri: http://localhost:12100
-remote_tracking_uri: https://operations.artificialy.tech/services/mlflow/nlp
-instance: nlp
-remote_flag: false
 trace: false
 project_name: artifievalllm
 experiment_name: "openai_compatible_llm_generic"
