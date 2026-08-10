@@ -56,6 +56,10 @@ make dev
 make format-check && make lint && make lint-doc && make test
 ```
 
+The script already pushed `update-template` to `origin` with
+`--set-upstream` before returning control here — do not tell the user the
+branch still needs pushing, and do not push it again.
+
 Then summarise, for the user:
 
 - The template commit range that came in. The script's own commit message is
@@ -73,5 +77,7 @@ Open the PR against the default branch.
 - Force-push the `update-template` branch.
 - Delete the temporary `template` remote or the graft commit by hand; the script
   removes both, even on failure.
-- Start on a dirty working tree — the graft step will lose uncommitted work.
+- Start on a dirty working tree — the `git merge --squash` step will lose
+  uncommitted work. (The graft step itself only creates a `git replace
+  --graft` object and never touches the working tree.)
 - Edit `[tool.template]` manually to skip a conflicted range.

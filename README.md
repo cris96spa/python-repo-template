@@ -67,7 +67,7 @@ make format-check
 
 ### Executing
 
-The code is a simple hello world example, which just requires a number as input. It will output the sum of the provided number with a random number.
+The code is a simple example that takes a number as input, draws `SAMPLE_COUNT` random sums with it, and reports the min, mean and max of those draws through the console helpers in `utils/console.py`.
 You can run the code with:
 
 ```bash
@@ -92,11 +92,29 @@ make doc
 
 ### Github Actions
 
-The template includes two Github Actions workflows.
+The template includes three Github Actions workflows.
 
-The first one runs tests and linters on every push on the main and dev branches. You can find the workflow file in `.github/workflows/main-list-test.yml`.
+The first one runs tests and linters on every push on the main and dev branches. You can find the workflow file in `.github/workflows/main-validate.yaml`.
 
 The second one is triggered on every tag push and can also be triggered manually. It builds the distribution and uploads it to PyPI. You can find the workflow file in `.github/workflows/publish.yaml`.
+
+The third one builds the documentation and deploys it to GitHub Pages on every push to `main`. You can find the workflow file in `.github/workflows/pages.yml`.
+
+## Working with AI Agents
+
+Agent context lives in `CLAUDE.md` at the repository root (`AGENTS.md` is a symlink to it, for agents that look for that name). Four repo-local skills live in `.claude/skills/`: `new-config`, `push-to-pr`, `sync-template` and `update-pr-body`.
+
+## Diagrams
+
+`diagrams/` is an optional module for generating figures — TikZ for schematics, `xy` for data charts. Build it with:
+
+```bash
+make install-diagrams   # install the optional diagram toolchain
+make diagrams           # build every diagram
+make diagrams-clean     # remove generated diagram output
+```
+
+If a project does not need it, remove it entirely by following the checklist in `diagrams/README.md`.
 
 ## Configuration
 
