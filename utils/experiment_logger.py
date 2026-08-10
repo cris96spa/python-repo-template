@@ -152,7 +152,7 @@ class MlflowLogger(BaseExperimentLogger):
         uri = str(self._config.tracking_uri)
         logger.info("Setting MLflow tracking URI to: %s", uri)
         mlflow.set_tracking_uri(uri)
-        mlflow.config.enable_async_logging(enable=True)  # type: ignore  # noqa: PGH003
+        mlflow.config.enable_async_logging(enable=True)  # type: ignore  # ruff:ignore[blanket-type-ignore]
         if self._config.trace:
             mlflow.openai.autolog()
             logger.info("MLflow OpenAI autologging enabled.")

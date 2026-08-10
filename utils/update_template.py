@@ -64,7 +64,7 @@ def main(
             ).split("\n")[0]
             print(f"First commit date is: {first_commit_date}")
             template_reference_commit = get_command_output(
-                f"git rev-list -n 1 --before='{first_commit_date}' template/{template_target_branch}"  # noqa: E501
+                f"git rev-list -n 1 --before='{first_commit_date}' template/{template_target_branch}"  # ruff:ignore[line-too-long]
             )
             print(f"Guessed template reference commit: {template_reference_commit}")
 
