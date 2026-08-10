@@ -39,9 +39,9 @@ The spec gives chart scripts a `--theme` flag matching the TikZ side. This plan 
 | `CLAUDE.md` | **Create.** Agent-facing project context. |
 | `AGENTS.md` | **Create.** Symlink to `CLAUDE.md`. |
 | `.claude/skills/*/SKILL.md` | **Create.** Four repo-local skills. |
-| `utils/post_checkout.py` | **Create.** Dependency-drift notice for the existing post-checkout hook. |
-| `tests/test_post_checkout.py` | **Create.** Argv and diff-detection edge cases. |
-| `.pre-commit-config.yaml` | **Modify.** Remove the dead `update-progress` hook. |
+| `utils/post_checkout.py` | **Create.** Dependency-drift notice for the existing post-checkout hook; reads argv, falling back to the `PRE_COMMIT_*` environment variables pre-commit actually sets. |
+| `tests/test_post_checkout.py` | **Create.** Argv and diff-detection edge cases, plus the environment-variable fallback and its precedence over argv. |
+| `.pre-commit-config.yaml` | **Modify.** Remove the dead `update-progress` hook; fix `post-checkout`'s `entry` to run as a module so the import resolves. |
 | `.github/workflows/main-validate.yaml` | **Modify.** Narrow the Python matrix. |
 | `.gitignore` | **Modify.** Ignore local Claude settings and generated diagrams. |
 | `pyproject.toml` | **Modify.** Add the `diagrams` extra. |
@@ -1072,6 +1072,13 @@ def run_git(repository: Path, *arguments: str) -> str:
     ).stdout.strip()
 
 
+@pytest.fixture(autouse=True)
+def clear_pre_commit_environment(monkeypatch):
+    monkeypatch.delenv("PRE_COMMIT_FROM_REF", raising=False)
+    monkeypatch.delenv("PRE_COMMIT_TO_REF", raising=False)
+    monkeypatch.delenv("PRE_COMMIT_CHECKOUT_TYPE", raising=False)
+
+
 @pytest.fixture
 def repository(tmp_path, monkeypatch):
     run_git(tmp_path, "init", "-q")
@@ -1128,7 +1135,51 @@ def test_missing_arguments_exit_zero_without_raising(capsys):
 def test_unknown_revisions_exit_zero_without_raising(repository, capsys):
     assert main(["deadbeef", "cafebabe", BRANCH_CHECKOUT]) == 0
     assert capsys.readouterr().out == ""
+
+
+def test_branch_checkout_via_environment_prints_a_notice(repository, monkeypatch, capsys):
+    before = run_git(repository, "rev-parse", "HEAD")
+    (repository / "pyproject.toml").write_text("[project]\nname = 'demo2'\n")
+    run_git(repository, "commit", "-q", "-am", "chore: bump")
+    after = run_git(repository, "rev-parse", "HEAD")
+    monkeypatch.setenv("PRE_COMMIT_FROM_REF", before)
+    monkeypatch.setenv("PRE_COMMIT_TO_REF", after)
+    monkeypatch.setenv("PRE_COMMIT_CHECKOUT_TYPE", BRANCH_CHECKOUT)
+
+    assert main([]) == 0
+    assert "make dev" in capsys.readouterr().out
+
+
+def test_file_checkout_type_via_environment_prints_nothing(repository, monkeypatch, capsys):
+    before = run_git(repository, "rev-parse", "HEAD")
+    (repository / "pyproject.toml").write_text("[project]\nname = 'demo2'\n")
+    run_git(repository, "commit", "-q", "-am", "chore: bump")
+    after = run_git(repository, "rev-parse", "HEAD")
+    monkeypatch.setenv("PRE_COMMIT_FROM_REF", before)
+    monkeypatch.setenv("PRE_COMMIT_TO_REF", after)
+    monkeypatch.setenv("PRE_COMMIT_CHECKOUT_TYPE", FILE_CHECKOUT)
+
+    assert main([]) == 0
+    assert capsys.readouterr().out == ""
+
+
+def test_argv_takes_precedence_over_conflicting_environment_variables(
+    repository, monkeypatch, capsys
+):
+    before = run_git(repository, "rev-parse", "HEAD")
+    (repository / "pyproject.toml").write_text("[project]\nname = 'demo2'\n")
+    run_git(repository, "commit", "-q", "-am", "chore: bump")
+    after = run_git(repository, "rev-parse", "HEAD")
+    monkeypatch.setenv("PRE_COMMIT_FROM_REF", before)
+    monkeypatch.setenv("PRE_COMMIT_TO_REF", after)
+    monkeypatch.setenv("PRE_COMMIT_CHECKOUT_TYPE", FILE_CHECKOUT)
+
+    assert main([before, after, BRANCH_CHECKOUT]) == 0
+    assert "make dev" in capsys.readouterr().out
 ```
+
+The `clear_pre_commit_environment` autouse fixture at the top prevents the argv-only
+tests from picking up `PRE_COMMIT_*` variables leaking in from an outer pre-commit run.
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
@@ -1137,11 +1188,18 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'utils.post_checkout'`
 
 - [ ] **Step 3: Write the implementation**
 
-Create `utils/post_checkout.py`:
+Create `utils/post_checkout.py`. Note that pre-commit does **not** forward git's three
+positional post-checkout arguments to a local hook's `entry` as `sys.argv` — it
+consumes them internally (`pre_commit/commands/hook_impl.py`) and re-exposes them only
+as `PRE_COMMIT_FROM_REF` / `PRE_COMMIT_TO_REF` / `PRE_COMMIT_CHECKOUT_TYPE` environment
+variables (`pre_commit/commands/run.py`). `main` must read both sources, argv first, or
+the hook can never fire when pre-commit is what invokes it — which is the only way it
+runs in practice, since `default_install_hook_types` includes `post-checkout`.
 
 ```python
 """Post-checkout hook that flags dependency drift after a branch switch."""
 
+import os
 import subprocess
 import sys
 from collections.abc import Sequence
@@ -1171,8 +1229,36 @@ def dependency_files_changed(previous: str, current: str) -> list[str]:
     return [line for line in completed.stdout.splitlines() if line]
 
 
+def _hook_arguments(argv: Sequence[str]) -> tuple[str, str, str] | None:
+    """Resolve the previous revision, the new revision and the checkout flag.
+
+    pre-commit does not forward git's positional arguments to hooks. It consumes
+    them and re-exposes them as ``PRE_COMMIT_*`` environment variables, so both
+    sources have to be read.
+
+    Args:
+        argv: Positional arguments, as git passes them to a raw hook.
+
+    Returns:
+        The three values, or ``None`` when neither source supplies them.
+    """
+    if len(argv) >= 3:
+        return argv[0], argv[1], argv[2]
+    previous = os.environ.get("PRE_COMMIT_FROM_REF")
+    current = os.environ.get("PRE_COMMIT_TO_REF")
+    checkout_type = os.environ.get("PRE_COMMIT_CHECKOUT_TYPE")
+    if previous and current and checkout_type:
+        return previous, current, checkout_type
+    return None
+
+
 def main(argv: Sequence[str]) -> int:
     """Print a notice when a branch switch changed the dependency files.
+
+    Reads the previous revision, the new revision, and the branch-checkout flag
+    from argv when given, falling back to the ``PRE_COMMIT_FROM_REF`` /
+    ``PRE_COMMIT_TO_REF`` / ``PRE_COMMIT_CHECKOUT_TYPE`` environment variables
+    pre-commit sets, since pre-commit never forwards them as positional arguments.
 
     Args:
         argv: The previous revision, the new revision, and git's branch-checkout flag.
@@ -1180,11 +1266,16 @@ def main(argv: Sequence[str]) -> int:
     Returns:
         Always zero, so a checkout never looks broken because of this hook.
     """
-    if len(argv) < 3 or argv[2] != BRANCH_CHECKOUT_FLAG:
+    arguments = _hook_arguments(argv)
+    if arguments is None:
+        return 0
+
+    previous, current, checkout_type = arguments
+    if checkout_type != BRANCH_CHECKOUT_FLAG:
         return 0
 
     try:
-        changed = dependency_files_changed(argv[0], argv[1])
+        changed = dependency_files_changed(previous, current)
     except (subprocess.CalledProcessError, OSError):
         return 0
 
@@ -1203,9 +1294,9 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `uv run pytest tests/test_post_checkout.py -v`
-Expected: PASS, 6 passed
+Expected: PASS, 9 passed
 
-- [ ] **Step 5: Remove the dead update-progress hook**
+- [ ] **Step 5: Remove the dead update-progress hook and fix the post-checkout entry**
 
 Delete this block from `.pre-commit-config.yaml`:
 
@@ -1222,16 +1313,63 @@ Delete this block from `.pre-commit-config.yaml`:
         stages: [pre-commit]
 ```
 
+In the same file, change the `post-checkout` hook's `entry` from:
+
+```yaml
+        entry: uv run python utils/post_checkout.py
+```
+
+to:
+
+```yaml
+        entry: uv run python -m utils.post_checkout
+```
+
+Running the script by file path puts `utils/` — not the repository root — on
+`sys.path[0]`, so `from utils.console import ...` raises `ModuleNotFoundError` and the
+hook crashes on every real checkout. Running it as a module (`-m utils.post_checkout`)
+resolves the import correctly because pre-commit always runs local hooks with the
+repository root as the working directory.
+
 - [ ] **Step 6: Verify every hook resolves**
 
 Run: `uv run pre-commit run --all-files`
-Expected: every hook reports Passed or Skipped; no hook fails with a missing-file error
+Expected: every hook reports Passed or Skipped; no hook fails with a missing-file error.
+Note that `post-checkout` itself is scoped to `stages: [post-checkout]`, so it does not
+run as part of this default-stage, all-files pass — verify it separately with a real
+`git checkout` in a throwaway repository (install hooks with `pre-commit install -t
+post-checkout`, commit a change to `pyproject.toml` on a branch, then check out back)
+and confirm the notice prints.
 
 - [ ] **Step 7: Commit the repairs**
 
 ```bash
 git add utils/post_checkout.py tests/test_post_checkout.py .pre-commit-config.yaml
 git commit -m "fix: repair post-checkout hook and drop the dead update-progress hook"
+```
+
+- [ ] **Step 7b: Verify with a real checkout, then commit the environment-variable fix**
+
+If Step 3 was implemented with the `_hook_arguments` env-var fallback from the start,
+this step has nothing to do. If it was implemented argv-only first and the gap was
+caught later (as happened here), add the fallback and its three tests, then verify with
+a real checkout before committing:
+
+```bash
+uv run pytest tests/test_post_checkout.py -v      # 9 passed
+uv run pytest tests -n auto -q                    # full suite
+make format-check && make lint && make lint-doc
+```
+
+Then reproduce a real checkout: build a throwaway repo, copy in `utils/console.py` and
+`utils/post_checkout.py`, add a minimal `.pre-commit-config.yaml` with just the
+`post-checkout` hook (`entry: ... -m utils.post_checkout`), `pre-commit install -t
+post-checkout`, commit a change to `pyproject.toml` on a branch, and check out back to
+confirm the resync notice actually prints.
+
+```bash
+git add utils/post_checkout.py tests/test_post_checkout.py docs/superpowers/plans/2026-08-10-rlhf-book-patterns.md
+git commit -m "fix: read post-checkout refs from the environment pre-commit sets"
 ```
 
 - [ ] **Step 8: Narrow the CI Python matrix**
