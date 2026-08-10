@@ -1827,7 +1827,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory to write to.")
     parser.add_argument(
         "--format",
-        choices=["png", "svg", "pdf"],
+        choices=["png", "svg"],
         default="png",
         help="Output format.",
     )
@@ -1837,7 +1837,7 @@ def main() -> None:
     destination = arguments.output_dir / f"{CHART_NAME}.{arguments.format}"
 
     chart = build_chart()
-    writers = {"png": chart.to_png, "svg": chart.to_svg, "pdf": chart.to_pdf}
+    writers = {"png": chart.to_png, "svg": chart.to_svg}
     writers[arguments.format](str(destination))
 
 
