@@ -1618,8 +1618,8 @@ Append these targets to the end of the file:
 
 ```makefile
 
-install-diagrams: # install the optional diagram toolchain
-	uv sync --extra diagrams
+install-diagrams: # install the optional diagram toolchain alongside the dev dependencies
+	uv sync --all-groups --extra diagrams
 
 diagrams: # build every diagram
 	$(MAKE) -C diagrams all
