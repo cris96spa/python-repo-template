@@ -856,6 +856,7 @@ git commit -m "docs: add sync-template and new-config skills"
 **Files:**
 - Create: `.claude/skills/push-to-pr/SKILL.md`
 - Create: `.claude/skills/update-pr-body/SKILL.md`
+- Modify: `.gitignore`
 
 **Interfaces:**
 - Consumes: nothing from earlier tasks.
@@ -880,10 +881,15 @@ allowed-tools: Bash(git:*), Bash(gh:*), Bash(make:*)
 git branch --show-current
 git status --porcelain
 gh pr list --head "$(git branch --show-current)" --json number,url,title
+gh repo view --json defaultBranchRef --jq .defaultBranchRef.name \
+  || git symbolic-ref --quiet --short refs/remotes/origin/HEAD | sed 's|^origin/||'
 ```
 
 If the current branch is the default branch, stop and create a feature branch
-first — the skills and CI here assume branch-then-PR.
+first — the skills and CI here assume branch-then-PR. Nothing enforces this:
+`no-commit-to-branch` in `.pre-commit-config.yaml` guards `development`,
+`staging` and `production`, not the default branch, so this check is the only
+thing standing between you and a direct commit to it.
 
 ## 2. Run the gate before committing
 
@@ -1002,16 +1008,22 @@ gh pr edit <number> --body "${CURRENT}
 ```
 ````
 
-- [ ] **Step 3: Verify all four skills parse**
+- [ ] **Step 3: Ignore the pytest report artifact**
+
+`make test` writes `tests_report.xml` to the repo root, and `push-to-pr` runs
+`git add -A` after it. Add `tests_report.xml` to `.gitignore` on the line
+immediately after the existing `coverage.xml` entry.
+
+- [ ] **Step 4: Verify all four skills parse**
 
 Run: `uv run python -c "import pathlib, yaml; [print(yaml.safe_load(p.read_text().split('---')[1])['name']) for p in sorted(pathlib.Path('.claude/skills').glob('*/SKILL.md'))]"`
 Expected: `new-config`, `push-to-pr`, `sync-template`, `update-pr-body`
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add .claude/skills/push-to-pr .claude/skills/update-pr-body
-git commit -m "docs: add push-to-pr and update-pr-body skills"
+git add .gitignore .claude/skills/push-to-pr .claude/skills/update-pr-body
+git commit -m "fix: ignore the pytest report artifact and derive the default branch in push-to-pr"
 ```
 
 ---

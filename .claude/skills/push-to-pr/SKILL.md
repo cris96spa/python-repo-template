@@ -12,10 +12,15 @@ allowed-tools: Bash(git:*), Bash(gh:*), Bash(make:*)
 git branch --show-current
 git status --porcelain
 gh pr list --head "$(git branch --show-current)" --json number,url,title
+gh repo view --json defaultBranchRef --jq .defaultBranchRef.name \
+  || git symbolic-ref --quiet --short refs/remotes/origin/HEAD | sed 's|^origin/||'
 ```
 
 If the current branch is the default branch, stop and create a feature branch
-first — the skills and CI here assume branch-then-PR.
+first — the skills and CI here assume branch-then-PR. Nothing enforces this:
+`no-commit-to-branch` in `.pre-commit-config.yaml` guards `development`,
+`staging` and `production`, not the default branch, so this check is the only
+thing standing between you and a direct commit to it.
 
 ## 2. Run the gate before committing
 
