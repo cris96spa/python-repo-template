@@ -7,8 +7,9 @@ from datetime import datetime
 from pathlib import Path
 
 from rich import traceback
-from rich.console import Console
 from rich.logging import RichHandler
+
+from utils.console import console
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +50,6 @@ def setup_logger(path_serialization_dir: Path | None = None):
 
     fmt = "| %(asctime)s | %(name)s | %(message)s"
     date_format = "[%Y-%m-%d %H:%M:%S]"
-
-    console_columns = int(os.environ.get("COLUMNS", 180))
-    console = Console(width=console_columns)
 
     handlers: list[logging.Handler] = [
         RichHandler(show_time=False, console=console),
