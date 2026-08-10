@@ -1544,7 +1544,8 @@ check-tools: # report which diagram tools are installed
 
 tikz: | $(GENERATED_DIR) # compile every tikz source to pdf, png and svg
 	@mkdir -p $(GENERATED_DIR)/pdf $(GENERATED_DIR)/png $(GENERATED_DIR)/svg
-	@for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
+	@failed=0; \
+	for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
 		dir=$$(dirname "$$texfile"); \
 		base=$$(basename "$$texfile" .tex); \
 		echo "Compiling $$base"; \
@@ -1564,13 +1565,16 @@ tikz: | $(GENERATED_DIR) # compile every tikz source to pdf, png and svg
 		else \
 			echo "  FAILED $$base"; \
 			tail -n 20 "$$dir/$$base.log" 2>/dev/null; \
+			failed=1; \
 		fi; \
 		rm -f "$$dir/$$base.aux" "$$dir/$$base.log" "$$dir/$$base.pdf"; \
-	done
+	done; \
+	exit $$failed
 
 tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark png
 	@mkdir -p $(GENERATED_DIR)/png
-	@for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
+	@failed=0; \
+	for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
 		dir=$$(dirname "$$texfile"); \
 		base=$$(basename "$$texfile" .tex); \
 		echo "Compiling $$base (dark)"; \
@@ -1584,9 +1588,11 @@ tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark 
 		else \
 			echo "  FAILED $$base-dark"; \
 			tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
+			failed=1; \
 		fi; \
 		rm -f "$$dir/$$base-dark.aux" "$$dir/$$base-dark.log" "$$dir/$$base-dark.pdf"; \
-	done
+	done; \
+	exit $$failed
 
 dark: tikz-dark # build every dark-mode variant
 
@@ -1705,7 +1711,9 @@ SVGs stay vector; the density only affects PNGs.
 | ImageMagick | `brew install imagemagick` | PNG rasterisation |
 | pdf2svg | `brew install pdf2svg` | SVG conversion |
 
-Missing tools are reported and skipped rather than failing the build.
+Missing tools are reported and skipped rather than failing the build. A source
+that genuinely fails to build reports `FAILED` and makes the target exit
+non-zero, after attempting every other source.
 
 ## Style conventions
 
@@ -1867,11 +1875,17 @@ Add `charts` to the `.PHONY` line, and append this target after `tikz-dark`:
 ```makefile
 charts: | $(GENERATED_DIR) # render every chart script to png and svg
 	@mkdir -p $(GENERATED_DIR)/png $(GENERATED_DIR)/svg
-	@for script in $$(find charts -name '*.py' | sort); do \
+	@failed=0; \
+	for script in $$(find charts -name '*.py' | sort); do \
 		echo "Rendering $$script"; \
-		uv run --extra diagrams python "$$script" --output-dir $(GENERATED_DIR)/png --format png; \
-		uv run --extra diagrams python "$$script" --output-dir $(GENERATED_DIR)/svg --format svg; \
-	done
+		for format in png svg; do \
+			if ! uv run --extra diagrams python "$$script" --output-dir $(GENERATED_DIR)/$$format --format $$format; then \
+				echo "  FAILED $$script ($$format)"; \
+				failed=1; \
+			fi; \
+		done; \
+	done; \
+	exit $$failed
 ```
 
 Add the xy check to `check-tools`, after the tool loop:

@@ -50,7 +50,9 @@ SVGs stay vector; the density only affects PNGs.
 | pdf2svg | `brew install pdf2svg` | SVG conversion |
 | xy | `make -C .. install-diagrams` | `charts` |
 
-Missing tools are reported and skipped rather than failing the build.
+Missing tools are reported and skipped rather than failing the build. A source
+that genuinely fails to build reports `FAILED` and makes the target exit
+non-zero, after attempting every other source.
 
 ## Style conventions
 
