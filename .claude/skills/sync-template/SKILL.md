@@ -12,7 +12,8 @@ branch to review. The sync point lives in `[tool.template]` in `pyproject.toml`.
 
 ## Pre-flight
 
-All four must hold before running anything:
+All four must hold before the first run. They do not apply when resuming after
+a conflict — see On conflict below, where you stay on `update-template`.
 
 ```bash
 git status --porcelain          # must be empty
@@ -39,6 +40,10 @@ scratch:
 2. Stage the resolution: `git add -A`
 3. Commit it.
 4. Re-run `uv run python utils/update_template.py`. It resumes from the branch.
+   Do not return to Pre-flight and do not check out the default branch first:
+   the script detects it is already on `update-template` and continues, whereas
+   checking out the default branch makes it try to create that branch again and
+   abort.
 
 Conflicts concentrate in files derived projects edit. `CLAUDE.md` conflicts
 almost always belong to its `## Project` section — keep the project's version of
@@ -53,8 +58,12 @@ make format-check && make lint && make lint-doc && make test
 
 Then summarise, for the user:
 
-- Which template commits came in, from the squash-merge commit message.
-- Which files changed, grouped by area.
+- The template commit range that came in. The script's own commit message is
+  the fixed string `chore: update_template auto-commit` and carries no detail,
+  so read the range from the sync point it recorded:
+  `git diff HEAD~1 HEAD -- pyproject.toml` shows the old and new
+  `[tool.template] template_commit` values.
+- Which files changed, grouped by area: `git show --stat HEAD`.
 - Anything requiring a manual follow-up, such as a new make target or dependency.
 
 Open the PR against the default branch.
