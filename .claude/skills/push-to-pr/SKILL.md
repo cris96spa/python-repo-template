@@ -12,9 +12,15 @@ allowed-tools: Bash(git:*), Bash(gh:*), Bash(make:*)
 git branch --show-current
 git status --porcelain
 gh pr list --head "$(git branch --show-current)" --json number,url,title
-gh repo view --json defaultBranchRef --jq .defaultBranchRef.name \
-  || git symbolic-ref --quiet --short refs/remotes/origin/HEAD | sed 's|^origin/||'
+
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null)
+[ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD | sed 's|^origin/||')
+echo "default branch: ${DEFAULT_BRANCH:-UNKNOWN}"
 ```
+
+If that prints `UNKNOWN`, neither `gh` nor the local remote HEAD could tell you
+the default branch. Stop and ask — do not carry on, because an empty value makes
+the check below pass no matter which branch you are on.
 
 If the current branch is the default branch, stop and create a feature branch
 first — the skills and CI here assume branch-then-PR. Nothing enforces this:
