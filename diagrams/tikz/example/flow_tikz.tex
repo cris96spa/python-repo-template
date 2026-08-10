@@ -1,0 +1,15 @@
+\documentclass[border=4pt]{standalone}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{tikz}
+\input{styles.tex}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[block] (input) {Input};
+  \node[block, right=of input] (process) {Process};
+  \node[block, right=of process] (output) {Output};
+  \draw[flow] (input) -- node[edgelabel] {parse} (process);
+  \draw[flow] (process) -- node[edgelabel] {render} (output);
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,28 @@
+\usetikzlibrary{arrows.meta, positioning}
+
+\providecommand{\figdark}{0}
+
+\ifnum\figdark=1
+  \definecolor{inkcolor}{HTML}{E6E6E6}
+\else
+  \definecolor{inkcolor}{HTML}{1A1A1A}
+\fi
+
+\tikzset{
+  node distance=12mm,
+  block/.style={
+    draw=inkcolor,
+    text=inkcolor,
+    rounded corners=2pt,
+    minimum width=26mm,
+    minimum height=10mm,
+    align=center
+  },
+  flow/.style={
+    draw=inkcolor,
+    -{Stealth[length=2.4mm]},
+    shorten >=5pt,
+    thick
+  },
+  edgelabel/.style={text=inkcolor, font=\small, midway, above}
+}

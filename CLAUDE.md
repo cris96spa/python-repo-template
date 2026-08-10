@@ -91,6 +91,18 @@ YAML files live in `configs/`.
 - A pre-commit hook builds the docs, so a broken cross-reference fails the commit.
 - MathJax and mermaid fences are both available.
 
+## Diagrams
+
+The optional `diagrams/` module generates figures. TikZ owns schematics — boxes,
+arrows, maths. `xy` owns data charts. Matplotlib is not used.
+
+- Build with `make diagrams`; `make -C diagrams check-tools` reports what is installed.
+- `diagrams/generated/` is build output and is never committed. Copy reviewed
+  figures to `docs/images/`.
+- Colours come from `inkcolor` in `diagrams/tikz/_shared/styles.tex`. Never
+  hardcode a colour in a diagram source.
+- `diagrams/README.md` has the removal checklist for projects that do not want it.
+
 ## Commits and PRs
 
 - Conventional commits are enforced by `conventional-pre-commit`. Allowed types: `feat, fix, chore, build, ci, docs, perf, refactor, revert, style, test, merge`.

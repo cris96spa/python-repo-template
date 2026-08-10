@@ -291,3 +291,6 @@ uv.lock
 
 # Claude Code per-developer settings
 .claude/settings.local.json
+
+# Generated diagram output
+diagrams/generated/

@@ -1,0 +1,72 @@
+.PHONY: all tikz tikz-dark dark check-tools clean help
+
+GENERATED_DIR := generated
+TIKZ_SHARED := $(abspath tikz/_shared)
+TIKZ_DENSITY ?= 800
+PDFLATEX ?= pdflatex
+
+help: # print all the available targets
+	@echo "\nAvailable targets:\n"
+	@grep -E '^[a-zA-Z_-]+:.*?# .*$$' $(MAKEFILE_LIST) | sed 's/:.*#/\t/' | column -t -s '	' ; echo
+
+all: tikz # build every diagram
+
+check-tools: # report which diagram tools are installed
+	@for tool in $(PDFLATEX) magick pdf2svg; do \
+		if command -v $$tool > /dev/null; then \
+			echo "  found    $$tool"; \
+		else \
+			echo "  MISSING  $$tool"; \
+		fi; \
+	done
+
+tikz: | $(GENERATED_DIR) # compile every tikz source to pdf, png and svg
+	@mkdir -p $(GENERATED_DIR)/pdf $(GENERATED_DIR)/png $(GENERATED_DIR)/svg
+	@for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
+		dir=$$(dirname "$$texfile"); \
+		base=$$(basename "$$texfile" .tex); \
+		echo "Compiling $$base"; \
+		( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode "$$base.tex" > /dev/null 2>&1 ); \
+		if [ -f "$$dir/$$base.pdf" ]; then \
+			cp "$$dir/$$base.pdf" $(GENERATED_DIR)/pdf/$$base.pdf; \
+			if command -v magick > /dev/null; then \
+				magick -density $(TIKZ_DENSITY) "$$dir/$$base.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base.png; \
+			else \
+				echo "  skipped png: magick not installed"; \
+			fi; \
+			if command -v pdf2svg > /dev/null; then \
+				pdf2svg "$$dir/$$base.pdf" $(GENERATED_DIR)/svg/$$base.svg; \
+			else \
+				echo "  skipped svg: pdf2svg not installed"; \
+			fi; \
+		else \
+			echo "  FAILED $$base"; \
+			tail -n 20 "$$dir/$$base.log" 2>/dev/null; \
+		fi; \
+		rm -f "$$dir/$$base.aux" "$$dir/$$base.log" "$$dir/$$base.pdf"; \
+	done
+
+tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark png
+	@mkdir -p $(GENERATED_DIR)/png
+	@for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
+		dir=$$(dirname "$$texfile"); \
+		base=$$(basename "$$texfile" .tex); \
+		echo "Compiling $$base (dark)"; \
+		( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode -jobname "$$base-dark" "\def\figdark{1}\input{$$base.tex}" > /dev/null 2>&1 ); \
+		if [ -f "$$dir/$$base-dark.pdf" ] && command -v magick > /dev/null; then \
+			magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+		else \
+			echo "  FAILED $$base-dark"; \
+			tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
+		fi; \
+		rm -f "$$dir/$$base-dark.aux" "$$dir/$$base-dark.log" "$$dir/$$base-dark.pdf"; \
+	done
+
+dark: tikz-dark # build every dark-mode variant
+
+$(GENERATED_DIR):
+	mkdir -p $(GENERATED_DIR)
+
+clean: # remove generated output and latex build artifacts
+	rm -rf $(GENERATED_DIR)
+	find tikz \( -name '*.pdf' -o -name '*.aux' -o -name '*.log' \) -delete
