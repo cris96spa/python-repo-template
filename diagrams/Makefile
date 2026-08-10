@@ -19,7 +19,7 @@ check-tools: # report which diagram tools are installed
 			echo "  MISSING  $$tool"; \
 		fi; \
 	done
-	@if uv run --extra diagrams python -c "import xy" > /dev/null 2>&1; then \
+	@if uv run --no-sync --extra diagrams python -c "import xy" > /dev/null 2>&1; then \
 		echo "  found    xy"; \
 	else \
 		echo "  MISSING  xy (run: make -C .. install-diagrams)"; \
@@ -28,53 +28,67 @@ check-tools: # report which diagram tools are installed
 tikz: | $(GENERATED_DIR) # compile every tikz source to pdf, png and svg
 	@mkdir -p $(GENERATED_DIR)/pdf $(GENERATED_DIR)/png $(GENERATED_DIR)/svg
 	@failed=0; \
-	for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
-		dir=$$(dirname "$$texfile"); \
-		base=$$(basename "$$texfile" .tex); \
-		echo "Compiling $$base"; \
-		( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode "$$base.tex" > /dev/null 2>&1 ); \
-		if [ -f "$$dir/$$base.pdf" ]; then \
-			cp "$$dir/$$base.pdf" $(GENERATED_DIR)/pdf/$$base.pdf; \
-			if command -v magick > /dev/null; then \
-				magick -density $(TIKZ_DENSITY) "$$dir/$$base.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base.png; \
+	if ! command -v $(PDFLATEX) > /dev/null; then \
+		echo "  skipped tikz: $(PDFLATEX) not installed"; \
+	else \
+		for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
+			dir=$$(dirname "$$texfile"); \
+			base=$$(basename "$$texfile" .tex); \
+			echo "Compiling $$base"; \
+			( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode "$$base.tex" > /dev/null 2>&1 ); \
+			if [ -f "$$dir/$$base.pdf" ]; then \
+				cp "$$dir/$$base.pdf" $(GENERATED_DIR)/pdf/$$base.pdf; \
+				if command -v magick > /dev/null; then \
+					magick -density $(TIKZ_DENSITY) "$$dir/$$base.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base.png; \
+				else \
+					echo "  skipped png: magick not installed"; \
+				fi; \
+				if command -v pdf2svg > /dev/null; then \
+					pdf2svg "$$dir/$$base.pdf" $(GENERATED_DIR)/svg/$$base.svg; \
+				else \
+					echo "  skipped svg: pdf2svg not installed"; \
+				fi; \
+				if grep -q '^!' "$$dir/$$base.log" 2>/dev/null; then \
+					echo "  WARNING $$base compiled with LaTeX errors"; \
+				fi; \
 			else \
-				echo "  skipped png: magick not installed"; \
+				echo "  FAILED $$base"; \
+				tail -n 20 "$$dir/$$base.log" 2>/dev/null; \
+				failed=1; \
 			fi; \
-			if command -v pdf2svg > /dev/null; then \
-				pdf2svg "$$dir/$$base.pdf" $(GENERATED_DIR)/svg/$$base.svg; \
-			else \
-				echo "  skipped svg: pdf2svg not installed"; \
-			fi; \
-		else \
-			echo "  FAILED $$base"; \
-			tail -n 20 "$$dir/$$base.log" 2>/dev/null; \
-			failed=1; \
-		fi; \
-		rm -f "$$dir/$$base.aux" "$$dir/$$base.log" "$$dir/$$base.pdf"; \
-	done; \
+			rm -f "$$dir/$$base.aux" "$$dir/$$base.log" "$$dir/$$base.pdf"; \
+		done; \
+	fi; \
 	exit $$failed
 
 tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark png
 	@mkdir -p $(GENERATED_DIR)/png
 	@failed=0; \
-	for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
-		dir=$$(dirname "$$texfile"); \
-		base=$$(basename "$$texfile" .tex); \
-		echo "Compiling $$base (dark)"; \
-		( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode -jobname "$$base-dark" "\def\figdark{1}\input{$$base.tex}" > /dev/null 2>&1 ); \
-		if [ -f "$$dir/$$base-dark.pdf" ]; then \
-			if command -v magick > /dev/null; then \
-				magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+	if ! command -v $(PDFLATEX) > /dev/null; then \
+		echo "  skipped tikz-dark: $(PDFLATEX) not installed"; \
+	else \
+		for texfile in $$(find tikz -name '*_tikz.tex' | sort); do \
+			dir=$$(dirname "$$texfile"); \
+			base=$$(basename "$$texfile" .tex); \
+			echo "Compiling $$base (dark)"; \
+			( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode -jobname "$$base-dark" "\def\figdark{1}\input{$$base.tex}" > /dev/null 2>&1 ); \
+			if [ -f "$$dir/$$base-dark.pdf" ]; then \
+				if command -v magick > /dev/null; then \
+					magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+				else \
+					echo "  skipped png: magick not installed"; \
+				fi; \
+				if grep -q '^!' "$$dir/$$base-dark.log" 2>/dev/null; then \
+					echo "  WARNING $$base-dark compiled with LaTeX errors"; \
+				fi; \
 			else \
-				echo "  skipped png: magick not installed"; \
+				echo "  FAILED $$base-dark"; \
+				tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
+				failed=1; \
 			fi; \
-		else \
-			echo "  FAILED $$base-dark"; \
-			tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
-			failed=1; \
-		fi; \
-		rm -f "$$dir/$$base-dark.aux" "$$dir/$$base-dark.log" "$$dir/$$base-dark.pdf"; \
-	done; \
+			rm -f "$$dir/$$base-dark.aux" "$$dir/$$base-dark.log" "$$dir/$$base-dark.pdf"; \
+		done; \
+	fi; \
 	exit $$failed
 
 charts: | $(GENERATED_DIR) # render every chart script to png and svg

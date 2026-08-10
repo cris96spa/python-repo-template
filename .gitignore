@@ -294,3 +294,8 @@ uv.lock
 
 # Generated diagram output
 diagrams/generated/
+
+# Leftover LaTeX build artifacts from an interrupted diagrams/tikz build
+diagrams/tikz/**/*.pdf
+diagrams/tikz/**/*.aux
+diagrams/tikz/**/*.log

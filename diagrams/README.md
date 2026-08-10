@@ -19,7 +19,6 @@ tikz/
   _shared/styles.tex   shared styles, found through TEXINPUTS
   <topic>/*_tikz.tex   one file per diagram, discovered recursively
 charts/                xy scripts, one per chart
-specs/                 YAML inputs for data-driven figures
 generated/             build output: pdf/, png/, svg/ — never committed
 ```
 
@@ -34,12 +33,18 @@ make -C .. install-diagrams   # only needed for charts
 make check-tools              # report which tools are installed
 make all                      # every diagram, every format
 make tikz                     # tikz sources to pdf, png and svg
+make tikz-dark                # transparent dark-mode png variants from tikz sources
+make charts                   # xy chart scripts to png and svg
 make dark                     # transparent dark-mode png variants
 make clean                    # remove generated output
 ```
 
 Override the raster density per build: `make tikz TIKZ_DENSITY=1200`. PDFs and
 SVGs stay vector; the density only affects PNGs.
+
+`make charts` runs through `uv run --extra diagrams`, which installs the
+`diagrams` extra on demand if it is missing — no separate `install-diagrams`
+step is required for it.
 
 ## Requirements
 
@@ -91,5 +96,6 @@ In the docs, pair the two with mkdocs-material's theme suffixes:
    the root `Makefile`. The `$(wildcard diagrams)` entry in `PYTHON_TARGETS`
    disables itself.
 4. Delete the `diagrams/generated/` block from `.gitignore`.
-5. Delete the `## Diagrams` section from `CLAUDE.md`.
+5. Delete the `## Diagrams` section from `CLAUDE.md`, and the `diagrams/` line
+   from its Directory Structure block.
 6. Delete any generated figures from `docs/images/`.
