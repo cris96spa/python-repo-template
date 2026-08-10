@@ -1,5 +1,7 @@
 site_name: Python Repo Template Docs
 
+exclude_docs: superpowers/
+
 # Configuration
 theme:
   name: material

@@ -366,3 +366,27 @@ and `make test` all pass — the same four commands CI runs. Phase 3 additionall
 requires `make -C diagrams check-tools` to report accurately, and `make -C
 diagrams tikz` to produce PNG, SVG and PDF output from the example source on a
 machine with the LaTeX toolchain installed.
+
+## Corrections found during implementation
+
+This design was written before implementation and two of its statements
+turned out to be wrong. The design above is left as originally written; this
+section records what actually happened instead.
+
+- **Post-checkout hook arguments.** This design says pre-commit "passes
+  post-checkout hooks three git arguments." It does not: pre-commit exposes
+  the previous HEAD, new HEAD, and branch-checkout flag as the environment
+  variables `PRE_COMMIT_FROM_REF`, `PRE_COMMIT_TO_REF` and
+  `PRE_COMMIT_CHECKOUT_TYPE`, not as `sys.argv`. `utils/post_checkout.py`
+  reads both the environment variables and positional argv so it also works
+  when invoked directly (e.g. via a native git hook) rather than only through
+  pre-commit.
+- **`install-diagrams` dependency sync.** This design specifies `make
+  install-diagrams` running `uv sync --extra diagrams`. The implementation
+  instead runs `uv sync --all-groups --extra diagrams`, because
+  `[tool.uv] default-groups = []` makes `uv sync` exact: a bare `uv sync
+  --extra diagrams` would evict the `dev` group from the environment rather
+  than adding the extra to it.
+- **`xy` 0.0.6 export formats.** The xy spike above only names `to_svg()` and
+  `to_png()`. `xy` 0.0.6 has no `to_pdf`, so `diagrams/charts` exports PNG and
+  SVG only; the TikZ pipeline remains the only source of PDF output.
