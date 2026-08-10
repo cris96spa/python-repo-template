@@ -54,9 +54,10 @@ The spec gives chart scripts a `--theme` flag matching the TikZ side. This plan 
 
 - [ ] **Step 1: Create the feature branch**
 
+Branch from the commit carrying the spec and this plan, not from `main` — the
+docs are not on `main` yet.
+
 ```bash
-git checkout main
-git pull
 git checkout -b feat/rlhf-book-patterns
 ```
 
@@ -1133,9 +1134,6 @@ def dependency_files_changed(previous: str, current: str) -> list[str]:
 
     Returns:
         The changed dependency file paths, empty when nothing relevant changed.
-
-    Raises:
-        subprocess.CalledProcessError: If either revision is unknown to git.
     """
     completed = subprocess.run(
         ["git", "diff", "--name-only", previous, current, "--", *DEPENDENCY_FILES],
