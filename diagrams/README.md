@@ -48,6 +48,7 @@ SVGs stay vector; the density only affects PNGs.
 | pdflatex | `brew install --cask basictex` | `tikz`, `tikz-dark` |
 | ImageMagick | `brew install imagemagick` | PNG rasterisation |
 | pdf2svg | `brew install pdf2svg` | SVG conversion |
+| xy | `make -C .. install-diagrams` | `charts` |
 
 Missing tools are reported and skipped rather than failing the build.
 

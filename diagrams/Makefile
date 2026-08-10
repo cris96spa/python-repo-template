@@ -1,4 +1,4 @@
-.PHONY: all tikz tikz-dark dark check-tools clean help
+.PHONY: all tikz tikz-dark dark charts check-tools clean help
 
 GENERATED_DIR := generated
 TIKZ_SHARED := $(abspath tikz/_shared)
@@ -9,7 +9,7 @@ help: # print all the available targets
 	@echo "\nAvailable targets:\n"
 	@grep -E '^[a-zA-Z_-]+:.*?# .*$$' $(MAKEFILE_LIST) | sed 's/:.*#/\t/' | column -t -s '	' ; echo
 
-all: tikz # build every diagram
+all: tikz charts # build every diagram
 
 check-tools: # report which diagram tools are installed
 	@for tool in $(PDFLATEX) magick pdf2svg; do \
@@ -19,6 +19,11 @@ check-tools: # report which diagram tools are installed
 			echo "  MISSING  $$tool"; \
 		fi; \
 	done
+	@if uv run --extra diagrams python -c "import xy" > /dev/null 2>&1; then \
+		echo "  found    xy"; \
+	else \
+		echo "  MISSING  xy (run: make -C .. install-diagrams)"; \
+	fi
 
 tikz: | $(GENERATED_DIR) # compile every tikz source to pdf, png and svg
 	@mkdir -p $(GENERATED_DIR)/pdf $(GENERATED_DIR)/png $(GENERATED_DIR)/svg
@@ -64,6 +69,14 @@ tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark 
 			tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
 		fi; \
 		rm -f "$$dir/$$base-dark.aux" "$$dir/$$base-dark.log" "$$dir/$$base-dark.pdf"; \
+	done
+
+charts: | $(GENERATED_DIR) # render every chart script to png and svg
+	@mkdir -p $(GENERATED_DIR)/png $(GENERATED_DIR)/svg
+	@for script in $$(find charts -name '*.py' | sort); do \
+		echo "Rendering $$script"; \
+		uv run --extra diagrams python "$$script" --output-dir $(GENERATED_DIR)/png --format png; \
+		uv run --extra diagrams python "$$script" --output-dir $(GENERATED_DIR)/svg --format svg; \
 	done
 
 dark: tikz-dark # build every dark-mode variant
