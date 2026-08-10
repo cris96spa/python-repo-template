@@ -1575,8 +1575,12 @@ tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark 
 		base=$$(basename "$$texfile" .tex); \
 		echo "Compiling $$base (dark)"; \
 		( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode -jobname "$$base-dark" "\def\figdark{1}\input{$$base.tex}" > /dev/null 2>&1 ); \
-		if [ -f "$$dir/$$base-dark.pdf" ] && command -v magick > /dev/null; then \
-			magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+		if [ -f "$$dir/$$base-dark.pdf" ]; then \
+			if command -v magick > /dev/null; then \
+				magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+			else \
+				echo "  skipped png: magick not installed"; \
+			fi; \
 		else \
 			echo "  FAILED $$base-dark"; \
 			tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
@@ -1760,7 +1764,6 @@ arrows, maths. `xy` owns data charts. Matplotlib is not used.
 - Colours come from `inkcolor` in `diagrams/tikz/_shared/styles.tex`. Never
   hardcode a colour in a diagram source.
 - `diagrams/README.md` has the removal checklist for projects that do not want it.
-
 ```
 
 - [ ] **Step 9: Verify the tool report runs without a toolchain**

@@ -49,6 +49,7 @@ utils/                   Cross-cutting helpers, not part of the package
 configs/                 YAML files backing the config classes
 tests/                   Pytest suite, mirroring the package
 docs/                    properdocs/mkdocs sources
+diagrams/                Optional figure generation (see diagrams/README.md)
 .claude/skills/          Repo-local agent skills
 .github/                 Workflows and the shared validation action
 ```

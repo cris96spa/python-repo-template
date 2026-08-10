@@ -53,8 +53,12 @@ tikz-dark: | $(GENERATED_DIR) # compile every tikz source to a transparent dark 
 		base=$$(basename "$$texfile" .tex); \
 		echo "Compiling $$base (dark)"; \
 		( cd "$$dir" && TEXINPUTS=".:$(TIKZ_SHARED):" $(PDFLATEX) -interaction=nonstopmode -jobname "$$base-dark" "\def\figdark{1}\input{$$base.tex}" > /dev/null 2>&1 ); \
-		if [ -f "$$dir/$$base-dark.pdf" ] && command -v magick > /dev/null; then \
-			magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+		if [ -f "$$dir/$$base-dark.pdf" ]; then \
+			if command -v magick > /dev/null; then \
+				magick -density $(TIKZ_DENSITY) -background none "$$dir/$$base-dark.pdf" -trim -quality 100 $(GENERATED_DIR)/png/$$base-dark.png; \
+			else \
+				echo "  skipped png: magick not installed"; \
+			fi; \
 		else \
 			echo "  FAILED $$base-dark"; \
 			tail -n 20 "$$dir/$$base-dark.log" 2>/dev/null; \
