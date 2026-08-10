@@ -287,3 +287,6 @@ pip-selfcheck.json
 
 # This should be removed when the template is actually being used
 uv.lock
+
+# Claude Code per-developer settings
+.claude/settings.local.json
