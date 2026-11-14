@@ -80,14 +80,14 @@ convention = "google"
 "__init__.py" = ["F401"]
 
 [tool.pyright]
-include = ["python-repo-template", "tests", "utils"]
+include = ["python_repo_template", "tests", "utils"]
 typeCheckingMode = "basic"
 reportFunctionMemberAccess = true
 reportPossiblyUnboundVariable = true
 reportIncompatibleMethodOverride = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["python-repo-template"]
+packages = ["python_repo_template"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
