@@ -2,6 +2,9 @@
 # See https://pre-commit.com/hooks.html for more hooks
 default_install_hook_types: [pre-commit, commit-msg, post-checkout]
 default_stages: [pre-commit]
+# The documentation engine is kept exactly as upstream ships it; a hook that rewrote one of its
+# files would fail the hash check of `make doc-check`.
+exclude: ^docs/app/
 
 repos:
   - repo: meta
@@ -49,6 +52,8 @@ repos:
     hooks:
       - id: prettier
         types_or: [json, yaml]
+        # docs/ has its own Prettier setup, with a plugin this hook does not install.
+        exclude: ^docs/
 
   - repo: local
     hooks:
@@ -110,13 +115,3 @@ repos:
         always_run: true
         pass_filenames: false
         verbose: true
-
-  - repo: local
-    hooks:
-      - id: check-docs-build
-        name: Check Documentation Build
-        description: Check if the documentation builds successfully, without warnings or errors
-        entry: uv run properdocs build -f properdocs.yml
-        language: system
-        pass_filenames: false
-        verbose: false

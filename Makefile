@@ -36,8 +36,17 @@ lint-fix: # check and fix the code style
 lint-doc: # check the docstring style
 	uv run flake8 $(PYTHON_TARGETS)
 
-doc: # create the project documentation; Build and visualize documentation through a local server
-	uv run properdocs serve -f properdocs.yml --dev-addr 0.0.0.0:$(DOC_PORT)
+install-docs: # install the documentation toolchain; needs Node.js 22.12 or later
+	npm ci --prefix docs
+
+doc: # serve the documentation on a local server that reloads on change
+	npm run docs:dev --prefix docs -- --port $(DOC_PORT)
+
+doc-build: # build the documentation into docs/dist
+	npm run docs:build --prefix docs
+
+doc-check: # check the engine files and the documentation links, then build the documentation
+	npm run check --prefix docs
 
 test: # launch the tests
 	uv run pytest -v -n auto --junitxml=tests_report.xml --doctest-modules --cov=$(PROJECT_NAME) --cov-report xml:coverage.xml --durations=0 tests

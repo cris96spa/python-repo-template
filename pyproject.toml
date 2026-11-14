@@ -24,13 +24,6 @@ diagrams = [
 
 dev = [
     "build>=1.3.0,<2.0.0",
-    "mkdocs-callouts>=1.0.0,<2.0.0",
-    "mkdocs-material>=9.7.6,<9.8.0",
-    "properdocs>=1.6.1,<2.0.0",
-    "mkdocs-gen-files>=0.6.1,<0.7.0",
-    "mkdocs-literate-nav>=0.6.3,<0.7.0",
-    "mkdocstrings[python]>=0.30.1,<0.31.0",
-    "pymdown-extensions>=10.0.0,<12.0.0",
     "pre-commit>=4.3.0,<5.0.0",
     "python-semantic-release>=9.21,<10.0.0",
     "ruff>=0.15.11,<0.16.0",
