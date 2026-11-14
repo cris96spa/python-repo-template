@@ -7,43 +7,80 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      enabled: ${{ steps.source.outputs.enabled }}
     steps:
+      # Publishing is opt-in: it runs once the repository's Pages source is GitHub Actions, so a
+      # project created from the template publishes nothing until its owner turns it on.
+      - name: Check the Pages source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null || true)
+          if [ "$source" = "workflow" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Pages does not deploy from GitHub Actions in this repository; the documentation is not published."
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.source.outputs.enabled == 'true'
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Set up Node.js
+        if: steps.source.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
         with:
-          enable-cache: true
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: .python-version
+      - name: Install documentation dependencies
+        if: steps.source.outputs.enabled == 'true'
+        run: npm ci --prefix docs
 
-      - name: Install dev dependencies
-        run: make install-dev
+      - name: Read the Pages address
+        if: steps.source.outputs.enabled == 'true'
+        id: pages
+        uses: actions/configure-pages@v5
 
+      # A project site is served under /<repository>/, so the site is built for that base path.
       - name: Build docs
-        run: uv run properdocs build -f properdocs.yml
+        if: steps.source.outputs.enabled == 'true'
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          ORIGIN: ${{ steps.pages.outputs.origin }}
+        run: npm run pages:build --prefix docs -- "$BASE_PATH/" "$ORIGIN"
 
       - name: Upload pages artifact
+        if: steps.source.outputs.enabled == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: docs/dist
 
   deploy:
     needs: build
+    if: needs.build.outputs.enabled == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
