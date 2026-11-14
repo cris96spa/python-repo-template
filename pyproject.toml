@@ -82,6 +82,9 @@ reportIncompatibleMethodOverride = true
 [tool.hatch.build.targets.wheel]
 packages = ["python_repo_template"]
 
+[tool.hatch.build.targets.sdist]
+exclude = ["/docs", "/diagrams", "/.github", "/.claude"]
+
 [tool.hatch.metadata]
 allow-direct-references = true
 
