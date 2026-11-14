@@ -1,0 +1,107 @@
+---
+// Navigation between documentation pages. tools/docs.mjs places it at the top and bottom of
+// every page and writes pages.json from docs/pages/pages.json.
+import pages from "./pages.json";
+
+interface Props {
+  position?: "top" | "bottom";
+}
+
+const { position = "top" } = Astro.props as Props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const href = (slug: string) => `${base}${slug ? `${slug}/` : ""}`;
+const current = Astro.url.pathname
+  .slice(base.length - 1)
+  .replace(/^\/+|\/+$/g, "")
+  .replace(/index\.html$/, "");
+const index = Math.max(
+  0,
+  pages.findIndex((page) => page.slug === current),
+);
+const previous = pages[index - 1];
+const next = pages[index + 1];
+---
+
+{
+  position === "top" ? (
+    <nav class="docs-nav" aria-label="Documentation">
+      {pages.map((page, i) => (
+        <a href={href(page.slug)} aria-current={i === index ? "page" : undefined}>
+          {page.label}
+        </a>
+      ))}
+    </nav>
+  ) : (
+    <nav class="docs-pager" aria-label="Previous and next page">
+      {previous ? (
+        <a class="docs-pager__link" href={href(previous.slug)}>
+          <span>Previous</span>
+          <strong>{previous.label}</strong>
+        </a>
+      ) : (
+        <span />
+      )}
+      {next && (
+        <a class="docs-pager__link docs-pager__link--next" href={href(next.slug)}>
+          <span>Next</span>
+          <strong>{next.label}</strong>
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .docs-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 32px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--surface-bg);
+  }
+  .docs-nav a {
+    padding: 6px 12px;
+    border-radius: 7px;
+    color: var(--muted-color);
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+  .docs-nav a:hover {
+    color: var(--text-color);
+  }
+  .docs-nav a[aria-current="page"] {
+    background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+    color: var(--text-color);
+    font-weight: 600;
+  }
+  .docs-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 56px 0 0;
+  }
+  .docs-pager__link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    text-decoration: none;
+  }
+  .docs-pager__link:hover {
+    border-color: var(--primary-color);
+  }
+  .docs-pager__link span {
+    color: var(--muted-color);
+    font-size: 0.85rem;
+  }
+  .docs-pager__link--next {
+    grid-column: 2;
+    text-align: right;
+  }
+</style>

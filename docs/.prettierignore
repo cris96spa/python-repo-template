@@ -1,0 +1,4 @@
+# The engine keeps the formatting upstream ships it with.
+app/
+# Working notes, not documentation.
+superpowers/

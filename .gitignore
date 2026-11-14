@@ -155,9 +155,6 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
-
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -299,3 +296,12 @@ diagrams/generated/
 diagrams/tikz/**/*.pdf
 diagrams/tikz/**/*.aux
 diagrams/tikz/**/*.log
+
+# Documentation site: a Node workspace under docs/
+# The engine has folders, such as scripts/, that the Python patterns above would ignore.
+!/docs/app/**
+node_modules/
+.astro/
+docs/.cache/
+docs/dist/
+*.tsbuildinfo
