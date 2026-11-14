@@ -30,6 +30,12 @@ uv manages dependencies, make runs everything else.
 - Documentation reads clean: no filler, no restating the API in prose.
 - Tests cover critical behaviour and edge cases. Coverage is a diagnostic, never a goal. Never add a test to move the number.
 
+These are the essentials. The full standard lives in three skills: read
+`.claude/skills/coding-guidelines/SKILL.md` before writing or reviewing Python or YAML,
+`.claude/skills/writing-guidelines/SKILL.md` before writing documentation, a pull request
+description, a commit message or a review report, and follow
+`.claude/skills/review-guidelines/SKILL.md` whenever asked to review a change.
+
 ## Commands
 
 | Task | Command |
@@ -120,6 +126,9 @@ arrows, maths. `xy` owns data charts. Matplotlib is not used.
 
 | I want to | Start here |
 |---|---|
+| Write or change Python or YAML | `.claude/skills/coding-guidelines/SKILL.md` |
+| Review a change, branch or pull request | `.claude/skills/review-guidelines/SKILL.md` |
+| Write docs, a PR description or a commit message | `.claude/skills/writing-guidelines/SKILL.md` |
 | Add a configuration class | `.claude/skills/new-config/SKILL.md`, then `utils/configs.py` |
 | Pull in template updates | `.claude/skills/sync-template/SKILL.md`, then `docs/updating-from-template.md` |
 | Open or update a pull request | `.claude/skills/push-to-pr/SKILL.md`, `.claude/skills/update-pr-body/SKILL.md` |
@@ -129,6 +138,9 @@ arrows, maths. `xy` owns data charts. Matplotlib is not used.
 
 ## Skills
 
+- **`coding-guidelines`** — the house style for Python and config files: design, file conventions, docstrings, modeling and tests.
+- **`review-guidelines`** — how to scope a review, what to check, the finding format and the P0–P3 priorities.
+- **`writing-guidelines`** — how to write docs, PR descriptions, commit messages and review reports for their reader.
 - **`sync-template`** — pull template changes into this project and resolve the merge.
 - **`new-config`** — add a config class with its YAML file and round-trip test.
 - **`push-to-pr`** — commit, push and open or update the PR for the current branch.

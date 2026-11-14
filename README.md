@@ -102,7 +102,7 @@ The third one builds the documentation and deploys it to GitHub Pages on every p
 
 ## Working with AI Agents
 
-Agent context lives in `CLAUDE.md` at the repository root (`AGENTS.md` is a symlink to it, for agents that look for that name). Four repo-local skills live in `.claude/skills/`: `new-config`, `push-to-pr`, `sync-template` and `update-pr-body`.
+Agent context lives in `CLAUDE.md` at the repository root (`AGENTS.md` is a symlink to it, for agents that look for that name). Repo-local skills live in `.claude/skills/`. `coding-guidelines`, `review-guidelines` and `writing-guidelines` hold the standard for code, reviews and prose; `new-config`, `push-to-pr`, `sync-template` and `update-pr-body` walk through recurring tasks.
 
 ## Diagrams
 

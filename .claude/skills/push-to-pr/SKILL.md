@@ -43,14 +43,12 @@ The `commit-msg` hook runs `conventional-pre-commit`. The subject must start
 with one of: `feat, fix, chore, build, ci, docs, perf, refactor, revert, style,
 test, merge`. A non-conforming subject is rejected and the commit is lost.
 
+A commit message is that one line: no body and no attribution trailers. What a
+reviewer cannot infer from the diff belongs in the PR description.
+
 ```bash
 git add -A
-git commit -m "$(cat <<'EOF'
-feat: short imperative summary
-
-Why the change was needed, and anything a reviewer cannot infer from the diff.
-EOF
-)"
+git commit -m "feat: short imperative summary"
 ```
 
 Version numbers are owned by `python-semantic-release`. Never bump one by hand.
