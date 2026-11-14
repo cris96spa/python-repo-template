@@ -84,25 +84,34 @@ docker build -t python-repo-template .
 
 ### Documentation
 
-Build and serve the documentation locally:
+The documentation is a static site, built from the MDX pages in `docs/pages/` by the [Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine. The engine needs [Node.js](https://nodejs.org/) 22.12 or later, which the rest of the template does not. Install the toolchain once, then serve the site at <http://127.0.0.1:8031/>:
 
 ```bash
+make install-docs
 make doc
 ```
+
+Check the links and the build before pushing:
+
+```bash
+make doc-check
+```
+
+The engine in `docs/app/` is Thibaud Frere's [research-article-template](https://github.com/tfrere/research-article-template), licensed under [CC BY 4.0](docs/LICENSE). [docs/README.md](docs/README.md) explains the folder.
 
 ### Github Actions
 
 The template includes three Github Actions workflows.
 
-The first one runs tests and linters on every push on the main and dev branches. You can find the workflow file in `.github/workflows/main-validate.yaml`.
+The first one runs tests and linters on every push on the main and dev branches, and checks the documentation in a separate job. You can find the workflow file in `.github/workflows/main-validate.yaml`.
 
 The second one is triggered on every tag push and can also be triggered manually. It builds the distribution and uploads it to PyPI. You can find the workflow file in `.github/workflows/publish.yaml`.
 
-The third one builds the documentation and deploys it to GitHub Pages on every push to `main`. You can find the workflow file in `.github/workflows/pages.yml`.
+The third one builds the documentation and deploys it to GitHub Pages on every push to `main`, once the repository's Pages source is set to GitHub Actions in **Settings → Pages**. You can find the workflow file in `.github/workflows/pages.yml`.
 
 ## Working with AI Agents
 
-Agent context lives in `CLAUDE.md` at the repository root (`AGENTS.md` is a symlink to it, for agents that look for that name). Repo-local skills live in `.claude/skills/`. `coding-guidelines`, `review-guidelines` and `writing-guidelines` hold the standard for code, reviews and prose; `new-config`, `push-to-pr`, `sync-template` and `update-pr-body` walk through recurring tasks.
+Agent context lives in `CLAUDE.md` at the repository root (`AGENTS.md` is a symlink to it, for agents that look for that name). Repo-local skills live in `.claude/skills/`. `coding-guidelines`, `review-guidelines` and `writing-guidelines` hold the standard for code, reviews and prose; `create-html-embed` and `page-frontmatter` cover the documentation pages; `new-config`, `push-to-pr`, `sync-template` and `update-pr-body` walk through recurring tasks.
 
 ## Diagrams
 

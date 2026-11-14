@@ -76,17 +76,30 @@ non-zero, after attempting every other source.
 `<name>-dark.png`. Dark variants are PNG only, and TikZ only — `xy` 0.0.6
 exposes no background control.
 
-In the docs, pair the two with mkdocs-material's theme suffixes:
+In Markdown that GitHub renders, such as `README.md`, pair the two with a `<picture>`
+element:
 
-```markdown
-![Flow](images/flow_tikz.png#only-light)
-![Flow](images/flow_tikz-dark.png#only-dark)
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/image/flow_tikz-dark.png">
+  <img src="docs/assets/image/flow_tikz.png" alt="Flow">
+</picture>
 ```
+
+A documentation page shows one variant, whichever theme the reader chose.
 
 ## Publishing a figure
 
 `generated/` is build output and stays ignored. Copy reviewed figures into
-`docs/images/` and commit them there.
+`docs/assets/image/` and commit them there. A documentation page in `docs/pages/` imports
+the file and places it with the `Image` component:
+
+```mdx
+import Image from "../../components/Image.astro";
+import flow from "../assets/image/flow_tikz.png";
+
+<Image src={flow} alt="What the figure shows" caption="What the figure is for." />
+```
 
 ## Removing this module
 
@@ -98,4 +111,4 @@ In the docs, pair the two with mkdocs-material's theme suffixes:
 4. Delete the `diagrams/generated/` block from `.gitignore`.
 5. Delete the `## Diagrams` section from `CLAUDE.md`, and the `diagrams/` line
    from its Directory Structure block.
-6. Delete any generated figures from `docs/images/`.
+6. Delete any generated figures from `docs/assets/image/`.
