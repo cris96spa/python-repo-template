@@ -1,0 +1,125 @@
+---
+title: "Python Repository Template"
+subtitle: "A Python project with its tooling already in place."
+description: "What a project created from the template contains, how to start working in it, and where things live."
+authors: []
+template: "article"
+showPdf: false
+licence: "Built with Thibaud Frere's research-article-template (CC BY 4.0)."
+---
+
+import Accordion from "../../components/Accordion.astro";
+import Note from "../../components/Note.astro";
+
+## What the template gives you
+
+Every Python project needs the same decisions before its first useful line of code: how
+dependencies are managed, which checks run, how configuration is loaded and where the
+documentation lives. A project created from this template starts with those decisions made.
+One command builds the development environment, and the first push runs the same checks in
+CI.
+
+| Area             | What is in place                                                              |
+| ---------------- | ----------------------------------------------------------------------------- |
+| Dependencies     | uv, with the dependency groups declared in `pyproject.toml`                   |
+| Commands         | A Make target for every routine task                                          |
+| Code quality     | Ruff for formatting and linting, pydoclint for docstrings, pre-commit hooks   |
+| Tests            | pytest, run in parallel, with a coverage report                               |
+| Configuration    | Pydantic classes backed by the YAML files in `configs/`                       |
+| Console output   | Rich helpers that share one console with `logging`                            |
+| Delivery         | A multi-stage `Dockerfile` and workflows for validation, PyPI and these pages |
+| Coding agents    | `CLAUDE.md` and the skills in `.claude/skills/`                               |
+| Template updates | A script that brings the template's later changes onto a branch for review    |
+
+## Quick start
+
+You need [uv](https://docs.astral.sh/uv/) and Make. From the project root, create the
+development environment:
+
+```sh
+make dev
+```
+
+The command creates a virtual environment in `.venv`, installs every dependency group and
+installs the pre-commit hooks. Run the example to check that the environment works:
+
+```sh
+uv run python main.py --number 5
+```
+
+It draws five random sums from the number and prints their minimum, mean and maximum in a
+`Metrics` panel. The four checks below are the ones CI runs on every push to `main` and `dev`,
+so run them before you push:
+
+```sh
+make format-check
+make lint
+make lint-doc
+make test
+```
+
+`make help` lists every other target.
+
+<Accordion title="Rename the package">
+
+The package is named `python_repo_template`. Rename its directory, then list every remaining
+occurrence of the old name and of `PROJECT_NAME`:
+
+```sh
+grep -rn 'python_repo_template\|PROJECT_NAME' \
+  --exclude-dir=.git --exclude-dir=node_modules .
+```
+
+Update each one, then run the four checks again.
+
+</Accordion>
+
+## Where things live
+
+| Path                    | Holds                                                  |
+| ----------------------- | ------------------------------------------------------ |
+| `main.py`               | The entry point and the console example                |
+| `python_repo_template/` | The package                                            |
+| `utils/`                | Helpers shared across the project, outside the package |
+| `configs/`              | The YAML files behind the configuration classes        |
+| `tests/`                | The pytest suite, mirroring the package                |
+| `docs/`                 | These pages and the engine that builds them            |
+| `diagrams/`             | Optional figure generation                             |
+| `.claude/skills/`       | Skills for coding agents                               |
+| `.github/`              | The workflows and the shared validation action         |
+
+`CLAUDE.md` holds the project's rules for coding agents, and the skills hold its standards
+for code, reviews and prose. Keep what is specific to your project in the `## Project`
+section of `CLAUDE.md`: the rest of the file belongs to the template, and edits to it conflict
+when you [update from the template](/updating-from-template/).
+
+## Write the documentation
+
+These pages are MDX files in `docs/pages/`, built into a static site by the
+[Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine. The engine runs
+on Node.js 22.12 or later, which the Python tooling does not need, so install it only when
+you work on the documentation:
+
+```sh
+make install-docs
+make doc
+```
+
+The site is served at [http://127.0.0.1:8031/](http://127.0.0.1:8031/), and saving a page
+reloads it. To add a page, create `docs/pages/NAME.mdx` with frontmatter like this page's, add
+it to `docs/pages/pages.json` in reading order, and restart `make doc`. Before you push, check
+the links and the build:
+
+```sh
+make doc-check
+```
+
+<Note title="Leave docs/app/ as it is" variant="info">
+  `docs/app/` is the engine, kept exactly as upstream ships it, and
+  `make doc-check` fails when one of its files changes. Your pages
+  go in `docs/pages/`, your figures in `docs/embeds/`, and your
+  images and data in `docs/assets/`.
+</Note>
+
+Once the repository's Pages source is set to **GitHub Actions**, in **Settings → Pages**, every
+push to `main` publishes the site on GitHub Pages.
