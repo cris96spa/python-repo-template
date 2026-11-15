@@ -1,6 +1,6 @@
 tracking_uri: http://localhost:12100
 trace: false
-project_name: artifievalllm
+project_name: my-project
 experiment_name: "openai_compatible_llm_generic"
 artifact_path: experiment_data
 templates_path: templates
