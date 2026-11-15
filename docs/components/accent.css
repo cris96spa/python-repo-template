@@ -1,0 +1,13 @@
+/*
+ * The project's accent colour. DocsNav imports this file on every page, and it replaces the
+ * engine's --primary-base, which links, buttons, figures and the Overview tint derive from.
+ * The template keeps the engine's own default in both themes. Change the two values to
+ * recolour the site; keep the dark one lighter, so links stay readable on the dark page.
+ */
+html:root {
+  --primary-base: oklch(0.75 0.12 47);
+}
+
+html[data-theme="dark"] {
+  --primary-base: oklch(0.75 0.12 47);
+}

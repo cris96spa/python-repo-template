@@ -107,7 +107,10 @@ make doc
 
 The site is served at [http://127.0.0.1:8031/](http://127.0.0.1:8031/), and saving a page
 reloads it. To add a page, create `docs/pages/NAME.mdx` with frontmatter like this page's, add
-it to `docs/pages/pages.json` in reading order, and restart `make doc`. Before you push, check
+it to `docs/pages/pages.json` in reading order, with a short label and its group (Overview,
+Tutorial, How-to guides, Reference, Explanation or Project), and restart `make doc`. The menu
+shows one tab per group and the pages of the current group under it; the cards, steps and
+badges a page can import are described in `docs/components/KIT.md`. Before you push, check
 the links and the build:
 
 ```sh

@@ -1,4 +1,12 @@
 [
-  { "file": "index.mdx", "label": "Overview" },
-  { "file": "updating-from-template.mdx", "label": "Updating from the template" }
+  {
+    "file": "index.mdx",
+    "group": "Overview",
+    "label": "Overview"
+  },
+  {
+    "file": "updating-from-template.mdx",
+    "group": "Project",
+    "label": "Updating from the template"
+  }
 ]

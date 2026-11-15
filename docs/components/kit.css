@@ -1,0 +1,56 @@
+/*
+ * Colours shared by the navigation and the components of docs/components/. Each kind of page
+ * has a tint, and each status a tone; an element picks one with data-kit-tint="<name>" and
+ * draws with --kit-tint (text, dots, borders) and --kit-wash (the pale fill behind it). The
+ * light tints keep a contrast above 4.5:1 on white and on their own wash, and the dark tints
+ * on the dark page.
+ */
+html:root {
+  --kit-overview: var(--kit-accent);
+  --kit-accent: oklch(from var(--primary-base) 0.48 c h);
+  --kit-tutorial: oklch(0.5 0.13 150);
+  --kit-howto: oklch(0.5 0.15 255);
+  --kit-reference: oklch(0.52 0.12 65);
+  --kit-explanation: oklch(0.5 0.17 340);
+  --kit-project: oklch(0.48 0.03 255);
+  --kit-danger: oklch(0.5 0.17 25);
+  --kit-wash-amount: 12%;
+}
+
+html[data-theme="dark"] {
+  --kit-accent: oklch(from var(--primary-base) 0.8 calc(c * 0.75) h);
+  --kit-tutorial: oklch(0.82 0.13 150);
+  --kit-howto: oklch(0.8 0.11 255);
+  --kit-reference: oklch(0.83 0.12 75);
+  --kit-explanation: oklch(0.8 0.12 340);
+  --kit-project: oklch(0.8 0.025 255);
+  --kit-danger: oklch(0.78 0.13 25);
+  --kit-wash-amount: 20%;
+}
+
+[data-kit-tint] {
+  --kit-tint: var(--kit-accent);
+  --kit-wash: color-mix(in oklab, var(--kit-tint) var(--kit-wash-amount), transparent);
+}
+[data-kit-tint="tutorial"],
+[data-kit-tint="success"] {
+  --kit-tint: var(--kit-tutorial);
+}
+[data-kit-tint="howto"],
+[data-kit-tint="info"] {
+  --kit-tint: var(--kit-howto);
+}
+[data-kit-tint="reference"],
+[data-kit-tint="warning"] {
+  --kit-tint: var(--kit-reference);
+}
+[data-kit-tint="explanation"] {
+  --kit-tint: var(--kit-explanation);
+}
+[data-kit-tint="project"],
+[data-kit-tint="neutral"] {
+  --kit-tint: var(--kit-project);
+}
+[data-kit-tint="danger"] {
+  --kit-tint: var(--kit-danger);
+}

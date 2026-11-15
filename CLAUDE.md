@@ -101,7 +101,7 @@ YAML files live in `configs/`.
 
 ## Documentation
 
-- The documentation is a static site built by the [Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine from the MDX pages in `docs/pages/`. `docs/pages/pages.json` lists the pages in menu order.
+- The documentation is a static site built by the [Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine from the MDX pages in `docs/pages/`. `docs/pages/pages.json` lists the pages in menu order, each with a short label and the group the menu shows it under. `docs/components/KIT.md` documents the navigation and the components a page can use.
 - The toolchain is a Node workspace under `docs/` and needs Node.js 22.12+. It is optional: `make dev` and the Python checks never use it. `make install-docs` installs it, `make doc` serves the site at `http://127.0.0.1:8031/`, and `make doc-check` verifies the engine files, checks the links and builds the site.
 - `docs/app/` is the upstream engine. Never edit it by hand: `docs/template-provenance.json` records a hash of every engine file, and `make doc-check` fails when one differs. Authors own `docs/pages/`, `docs/embeds/`, `docs/assets/` and `docs/components/`.
 - No API reference is generated from docstrings; that is deliberate.

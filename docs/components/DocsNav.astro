@@ -1,10 +1,30 @@
 ---
 // Navigation between documentation pages. tools/docs.mjs places it at the top and bottom of
-// every page and writes pages.json from docs/pages/pages.json.
+// every page and writes pages.json from docs/pages/pages.json. At the top it draws one row of
+// group tabs and, under it, the pages of the current group; it also puts the kind of the page
+// above its title. At the bottom it links the previous and the next page, naming their
+// groups. Links only, so it works without JavaScript; a short script, when it runs, centres
+// the current tab and page in a row too long for the screen.
 import pages from "./pages.json";
+import { kindOfGroup, type Kind } from "./kinds";
+import "./accent.css";
+import "./kit.css";
 
 interface Props {
   position?: "top" | "bottom";
+}
+
+interface Page {
+  file: string;
+  slug: string;
+  label: string;
+  group?: string;
+}
+
+interface Group {
+  name: string;
+  kind: Kind;
+  pages: Page[];
 }
 
 const { position = "top" } = Astro.props as Props;
@@ -14,37 +34,138 @@ const current = Astro.url.pathname
   .slice(base.length - 1)
   .replace(/^\/+|\/+$/g, "")
   .replace(/index\.html$/, "");
+const entries = pages as Page[];
 const index = Math.max(
   0,
-  pages.findIndex((page) => page.slug === current),
+  entries.findIndex((page) => page.slug === current),
 );
-const previous = pages[index - 1];
-const next = pages[index + 1];
+const page = entries[index];
+
+// Groups keep the order in which pages.json first names them; a page without a group is a
+// group of its own.
+const groups: Group[] = [];
+const groupOf = new Map<Page, Group>();
+for (const entry of entries) {
+  const name = entry.group ?? entry.label;
+  let group = groups.find((candidate) => candidate.name === name);
+  if (!group) {
+    group = { name, kind: kindOfGroup(name), pages: [] };
+    groups.push(group);
+  }
+  group.pages.push(entry);
+  groupOf.set(entry, group);
+}
+const currentGroup = groupOf.get(page)!;
+const showPages = currentGroup.pages.length > 1;
+const previous = entries[index - 1];
+const next = entries[index + 1];
+
+// The eyebrow above the page title is drawn by CSS on the engine's title, from these values.
+const cssString = (text: string) => JSON.stringify(text).replace(/</g, "\\3c ");
+const eyebrow = `<style>:root{--kit-eyebrow:${cssString(currentGroup.kind.label)};--kit-page-tint:var(--kit-${currentGroup.kind.key})}</style>`;
+// A row too long for the screen scrolls sideways. This script brings the current tab and page
+// into view and fades the edges behind which more items wait; without it, the end fades.
+const revealCurrent = `<script>
+document.querySelector(".kit-nav").classList.add("kit-nav--live");
+document.querySelectorAll(".kit-nav__row").forEach((row) => {
+  const active = row.querySelector("[aria-current]");
+  if (active && row.scrollWidth > row.clientWidth) {
+    row.scrollLeft = active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2;
+  }
+  const edges = () => {
+    row.toggleAttribute("data-more-before", row.scrollLeft > 2);
+    row.toggleAttribute("data-more-after", row.scrollLeft + row.clientWidth < row.scrollWidth - 2);
+  };
+  edges();
+  row.addEventListener("scroll", edges, { passive: true });
+  window.addEventListener("resize", edges);
+});
+</script>`;
 ---
 
 {
   position === "top" ? (
-    <nav class="docs-nav" aria-label="Documentation">
-      {pages.map((page, i) => (
-        <a href={href(page.slug)} aria-current={i === index ? "page" : undefined}>
-          {page.label}
-        </a>
-      ))}
-    </nav>
+    <>
+      <nav class="kit-nav" aria-label="Documentation">
+        <Fragment set:html={eyebrow} />
+        <ul class="kit-nav__row kit-nav__groups">
+          {groups.map((group) => {
+            const isCurrent = group === currentGroup;
+            const single = group.pages.length === 1;
+            return (
+              <li>
+                <a
+                  class="kit-nav__tab"
+                  data-kit-tint={group.kind.key}
+                  href={href(group.pages[0].slug)}
+                  title={
+                    single && group.pages[0].label !== group.name ? group.pages[0].label : undefined
+                  }
+                  aria-current={isCurrent ? (single ? "page" : "true") : undefined}
+                >
+                  <span class="kit-nav__dot" aria-hidden="true" />
+                  {group.name}
+                  {!single && (
+                    <span class="kit-nav__count">
+                      <span aria-hidden="true">{group.pages.length}</span>
+                      <span class="kit-nav__hidden">, {group.pages.length} pages</span>
+                    </span>
+                  )}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+        {showPages && (
+          <ul
+            class="kit-nav__row kit-nav__pages"
+            data-kit-tint={currentGroup.kind.key}
+            aria-label={currentGroup.name}
+          >
+            {currentGroup.pages.map((entry) => (
+              <li>
+                <a
+                  class="kit-nav__pill"
+                  href={href(entry.slug)}
+                  aria-current={entry === page ? "page" : undefined}
+                >
+                  {entry.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Fragment set:html={revealCurrent} />
+      </nav>
+    </>
   ) : (
-    <nav class="docs-pager" aria-label="Previous and next page">
+    <nav class="kit-pager" aria-label="Previous and next page">
       {previous ? (
-        <a class="docs-pager__link" href={href(previous.slug)}>
-          <span>Previous</span>
-          <strong>{previous.label}</strong>
+        <a
+          class="kit-pager__link"
+          data-kit-tint={groupOf.get(previous)!.kind.key}
+          href={href(previous.slug)}
+        >
+          <span class="kit-pager__meta">
+            <span aria-hidden="true">←</span> Previous
+            <span class="kit-pager__group">{groupOf.get(previous)!.name}</span>
+          </span>
+          <span class="kit-pager__label">{previous.label}</span>
         </a>
       ) : (
         <span />
       )}
       {next && (
-        <a class="docs-pager__link docs-pager__link--next" href={href(next.slug)}>
-          <span>Next</span>
-          <strong>{next.label}</strong>
+        <a
+          class="kit-pager__link kit-pager__link--next"
+          data-kit-tint={groupOf.get(next)!.kind.key}
+          href={href(next.slug)}
+        >
+          <span class="kit-pager__meta">
+            <span class="kit-pager__group">{groupOf.get(next)!.name}</span>
+            Next <span aria-hidden="true">→</span>
+          </span>
+          <span class="kit-pager__label">{next.label}</span>
         </a>
       )}
     </nav>
@@ -52,56 +173,317 @@ const next = pages[index + 1];
 }
 
 <style>
-  .docs-nav {
+  /* The navigation spans the content grid above the table of contents and the page, so the
+     grid leaves it room: one row of tabs, and a second when the group has several pages. */
+  :global(.content-grid:has(> main .kit-nav)) {
+    position: relative;
+    padding-top: 78px;
+  }
+  :global(.content-grid:has(> main .kit-nav__pages)) {
+    padding-top: 124px;
+  }
+  /* The navigation takes the place of the page's first element, whose top margin the engine
+     removes; the element after it gets the same treatment. */
+  :global(.content-grid > main > .kit-nav + *) {
+    margin-top: 0;
+  }
+  /* The engine's bar of authors and dates stays empty on these pages; hide its two rules. */
+  :global(header.meta:not(:has(.meta-container-cell))) {
+    display: none;
+  }
+
+  .kit-nav {
+    position: absolute;
+    top: 0;
+    left: var(--content-padding-x);
+    right: var(--content-padding-x);
+  }
+  .kit-nav.kit-nav--live .kit-nav__row {
+    mask-image: none;
+  }
+  .kit-nav.kit-nav--live .kit-nav__groups {
+    padding-right: 0;
+  }
+  .kit-nav.kit-nav--live .kit-nav__pages {
+    padding-right: 7px;
+  }
+  /* The edge behind which more items wait fades out; on the right, a chevron says so. */
+  .kit-nav.kit-nav--live .kit-nav__row[data-more-after] {
+    mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent calc(100% - 22px));
+  }
+  .kit-nav.kit-nav--live .kit-nav__row[data-more-before] {
+    mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent);
+  }
+  .kit-nav.kit-nav--live .kit-nav__row[data-more-before][data-more-after] {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 40px,
+      #000 calc(100% - 56px),
+      transparent calc(100% - 22px)
+    );
+  }
+  .kit-nav::before,
+  .kit-nav::after {
+    position: absolute;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    color: var(--muted-color);
+    font-size: 24px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .kit-nav:has(.kit-nav__groups[data-more-after])::after {
+    content: "›";
+    top: 0;
+    height: 40px;
+  }
+  .kit-nav:has(.kit-nav__pages[data-more-after])::before {
+    content: "›";
+    top: 40px;
+    height: 46px;
+  }
+  .kit-nav .kit-nav__row {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0 0 32px;
-    padding: 6px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .kit-nav .kit-nav__row::-webkit-scrollbar {
+    display: none;
+  }
+  .kit-nav .kit-nav__row li {
+    flex: none;
+    margin: 0;
+  }
+  .kit-nav .kit-nav__groups {
+    height: 40px;
+    align-items: stretch;
+  }
+  .kit-nav .kit-nav__tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 10px 10px 0 0;
+    background: none;
+    color: var(--muted-color);
+    font-size: 14.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .kit-nav .kit-nav__tab:hover {
+    border: 0;
+    color: var(--text-color);
     background: var(--surface-bg);
   }
-  .docs-nav a {
-    padding: 6px 12px;
-    border-radius: 7px;
+  .kit-nav .kit-nav__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--kit-tint);
+  }
+  .kit-nav .kit-nav__count {
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--surface-bg);
+    box-shadow: inset 0 0 0 1px var(--border-color);
     color: var(--muted-color);
-    font-size: 0.92rem;
-    text-decoration: none;
-  }
-  .docs-nav a:hover {
-    color: var(--text-color);
-  }
-  .docs-nav a[aria-current="page"] {
-    background: color-mix(in srgb, var(--primary-color) 14%, transparent);
-    color: var(--text-color);
+    font-size: 11.5px;
     font-weight: 600;
+    line-height: 18px;
+    text-align: center;
   }
-  .docs-pager {
+  .kit-nav .kit-nav__hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .kit-nav .kit-nav__tab[aria-current] {
+    background: var(--kit-wash);
+    color: var(--kit-tint);
+    font-weight: 650;
+  }
+  .kit-nav .kit-nav__tab[aria-current] .kit-nav__count {
+    background: var(--page-bg);
+    box-shadow: none;
+    color: var(--kit-tint);
+  }
+  /* A group of one page has no row of pages: its tab stands alone. */
+  .kit-nav .kit-nav__tab[aria-current="page"] {
+    border-radius: 10px;
+  }
+  .kit-nav .kit-nav__pages {
+    align-items: center;
+    gap: 4px;
+    height: 46px;
+    padding: 0 7px;
+    border-radius: 12px;
+    background: var(--kit-wash);
+  }
+  .kit-nav:has(li:first-child > [aria-current="true"]) .kit-nav__pages {
+    border-top-left-radius: 0;
+  }
+  .kit-nav .kit-nav__pill {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--text-color);
+    font-size: 14.5px;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+  .kit-nav .kit-nav__pill:hover {
+    border: 0;
+    color: var(--text-color);
+    background: color-mix(in oklab, var(--page-bg) 60%, transparent);
+  }
+  .kit-nav .kit-nav__pill[aria-current="page"] {
+    background: var(--page-bg);
+    color: var(--kit-tint);
+    font-weight: 650;
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--kit-tint) 35%, transparent),
+      0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  /* The kind of the page, above the engine's title. */
+  :global(.hero-title)::before,
+  :global(.hero-paper__title)::before {
+    content: var(--kit-eyebrow);
+    display: block;
+    width: fit-content;
+    margin: 0 auto 18px;
+    padding: 4px 12px 4px 25px;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 13px 50%, var(--kit-page-tint) 3.5px, transparent 4px),
+      color-mix(in oklab, var(--kit-page-tint) var(--kit-wash-amount), transparent);
+    color: var(--kit-page-tint);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .kit-pager {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin: 56px 0 0;
+    margin: 64px 0 0;
   }
-  .docs-pager__link {
+  .kit-pager .kit-pager__link {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 14px 16px;
+    gap: 6px;
+    padding: 14px 18px 16px;
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 12px;
+    background: none;
     color: var(--text-color);
     text-decoration: none;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
   }
-  .docs-pager__link:hover {
-    border-color: var(--primary-color);
+  .kit-pager .kit-pager__link:hover {
+    border: 1px solid color-mix(in oklab, var(--kit-tint) 55%, transparent);
+    background: color-mix(in oklab, var(--kit-wash) 50%, transparent);
+    color: var(--text-color);
   }
-  .docs-pager__link span {
+  .kit-pager .kit-pager__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--muted-color);
-    font-size: 0.85rem;
+    font-size: 13.5px;
   }
-  .docs-pager__link--next {
+  .kit-pager .kit-pager__group {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--kit-wash);
+    color: var(--kit-tint);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .kit-pager .kit-pager__label {
+    font-size: 17px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+  .kit-pager .kit-pager__link--next {
     grid-column: 2;
+    align-items: flex-end;
     text-align: right;
+  }
+
+  @media (max-width: 1100px) {
+    :global(.content-grid:has(> main .kit-nav)) {
+      padding-top: 64px;
+    }
+    :global(.content-grid:has(> main .kit-nav__pages)) {
+      padding-top: 110px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .kit-nav .kit-nav__row {
+      padding-right: 28px;
+      mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    }
+    .kit-nav .kit-nav__pages {
+      padding-right: 28px;
+    }
+    .kit-nav .kit-nav__tab {
+      gap: 7px;
+      padding: 0 12px;
+      font-size: 14px;
+    }
+    .kit-nav .kit-nav__pill {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .kit-pager {
+      grid-template-columns: 1fr;
+    }
+    .kit-pager .kit-pager__link--next {
+      grid-column: 1;
+    }
+  }
+
+  @media print {
+    :global(.content-grid:has(> main .kit-nav)) {
+      padding-top: 0;
+    }
+    .kit-nav,
+    .kit-pager {
+      display: none;
+    }
   }
 </style>

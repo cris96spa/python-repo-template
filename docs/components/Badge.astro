@@ -1,0 +1,46 @@
+---
+// An inline label for a status or a kind, such as "optional", "experimental" or "Reference".
+import "./kit.css";
+
+interface Props {
+  tone?: string;
+}
+
+const tones = [
+  "accent",
+  "neutral",
+  "success",
+  "info",
+  "warning",
+  "danger",
+  "overview",
+  "tutorial",
+  "howto",
+  "reference",
+  "explanation",
+  "project",
+];
+const { tone = "accent" } = Astro.props as Props;
+if (!tones.includes(tone)) {
+  throw new Error(`Unknown badge tone "${tone}": use one of ${tones.join(", ")}.`);
+}
+---
+
+<span class="kit-badge" data-kit-tint={tone}><slot /></span>
+
+<style>
+  .kit-badge {
+    display: inline-block;
+    padding: 0 0.6em;
+    border-radius: 999px;
+    background: var(--kit-wash);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--kit-tint) 28%, transparent);
+    color: var(--kit-tint);
+    font-size: 0.78em;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    line-height: 1.65;
+    white-space: nowrap;
+    vertical-align: 0.08em;
+  }
+</style>

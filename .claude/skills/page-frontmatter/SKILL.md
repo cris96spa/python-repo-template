@@ -110,5 +110,7 @@ import Accordion from "../../components/Accordion.astro";
 import Note from "../../components/Note.astro";
 ```
 
-A new page also needs an entry in `docs/pages/pages.json`, in reading order, and `make doc`
+A new page also needs an entry in `docs/pages/pages.json`, in reading order, with its `file`, a
+short `label` and the `group` the menu lists it under (`docs/components/KIT.md` names the
+groups), and `make doc`
 restarted. The prose follows the [writing guidelines](../writing-guidelines/SKILL.md).
