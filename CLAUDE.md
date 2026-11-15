@@ -46,7 +46,7 @@ description, a commit message or a review report, and follow
 | Lint | `make lint` / `make lint-fix` |
 | Lint docstrings | `make lint-doc` |
 | Test | `make test` |
-| Install the docs toolchain (Node.js 22.12+) | `make install-docs` |
+| Install the docs toolchain (Node.js 22.23.4+) | `make install-docs` |
 | Serve the docs | `make doc` |
 | Build the docs into `docs/dist/` | `make doc-build` |
 | Check the docs: engine files, links and build | `make doc-check` |
@@ -101,9 +101,9 @@ YAML files live in `configs/`.
 
 ## Documentation
 
-- The documentation is a static site built by the [Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine from the MDX pages in `docs/pages/`. `docs/pages/pages.json` lists the pages in menu order, each with a short label and the group the menu shows it under. `docs/components/KIT.md` documents the navigation and the components a page can use.
-- The toolchain is a Node workspace under `docs/` and needs Node.js 22.12+. It is optional: `make dev` and the Python checks never use it. `make install-docs` installs it, `make doc` serves the site at `http://127.0.0.1:8031/`, and `make doc-check` verifies the engine files, checks the links and builds the site.
-- `docs/app/` is the upstream engine. Never edit it by hand: `docs/template-provenance.json` records a hash of every engine file, and `make doc-check` fails when one differs. Authors own `docs/pages/`, `docs/embeds/`, `docs/assets/` and `docs/components/`.
+- The documentation is a static site built from the MDX pages in `docs/pages/` by the engine in `docs/app/`, a modified version of Thibaud Frere's [research-article-template](https://github.com/tfrere/research-article-template) (CC BY 4.0). `docs/pages/pages.json` lists the pages in menu order, each with a short label and the group the menu shows it under. `docs/components/KIT.md` documents the navigation and the components a page can use.
+- The toolchain is a Node workspace under `docs/` and needs Node.js 22.23.4+; the docs commands stop on an older release. It is optional: `make dev` and the Python checks never use it. `make install-docs` installs it, `make doc` serves the site at `http://127.0.0.1:8031/`, and `make doc-check` verifies the engine files, checks the links and builds the site.
+- `docs/app/` is the engine, maintained in python-repo-template and received by projects through the template sync. Never edit it by hand in a project: `docs/template-provenance.json` records the upstream commit, the changes made since and a hash of every engine file, and `make doc-check` fails when a file is edited, added or removed. Authors own `docs/pages/`, `docs/embeds/`, `docs/assets/` and `docs/components/`.
 - No API reference is generated from docstrings; that is deliberate.
 - A diagram in a page is an HTML embed in `docs/embeds/`, placed with `HtmlEmbed`. Mermaid fences belong only in plain Markdown files such as `README.md`.
 - `docs/superpowers/` holds working notes, not documentation; the site does not publish it.

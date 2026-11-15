@@ -83,94 +83,82 @@ document.querySelectorAll(".kit-nav__row").forEach((row) => {
 </script>`;
 ---
 
-{
-  position === "top" ? (
-    <>
-      <nav class="kit-nav" aria-label="Documentation">
-        <Fragment set:html={eyebrow} />
-        <ul class="kit-nav__row kit-nav__groups">
-          {groups.map((group) => {
-            const isCurrent = group === currentGroup;
-            const single = group.pages.length === 1;
-            return (
-              <li>
-                <a
-                  class="kit-nav__tab"
-                  data-kit-tint={group.kind.key}
-                  href={href(group.pages[0].slug)}
-                  title={
-                    single && group.pages[0].label !== group.name ? group.pages[0].label : undefined
-                  }
-                  aria-current={isCurrent ? (single ? "page" : "true") : undefined}
-                >
-                  <span class="kit-nav__dot" aria-hidden="true" />
-                  {group.name}
-                  {!single && (
-                    <span class="kit-nav__count">
-                      <span aria-hidden="true">{group.pages.length}</span>
-                      <span class="kit-nav__hidden">, {group.pages.length} pages</span>
-                    </span>
-                  )}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-        {showPages && (
-          <ul
-            class="kit-nav__row kit-nav__pages"
-            data-kit-tint={currentGroup.kind.key}
-            aria-label={currentGroup.name}
+{position === "top" ? (
+  <>
+    <nav class="kit-nav" aria-label="Documentation">
+      <Fragment set:html={eyebrow} />
+      <ul class="kit-nav__row kit-nav__groups">
+        {groups.map((group) => {
+          const isCurrent = group === currentGroup;
+          const single = group.pages.length === 1;
+          return <li>
+            <a
+              class="kit-nav__tab"
+              data-kit-tint={group.kind.key}
+              href={href(group.pages[0].slug)}
+              title={
+                single && group.pages[0].label !== group.name ? group.pages[0].label : undefined
+              }
+              aria-current={isCurrent ? (single ? "page" : "true") : undefined}
+            >
+              <span class="kit-nav__dot" aria-hidden="true" />
+              {group.name}
+              {!single && <span class="kit-nav__count">
+                <span aria-hidden="true">{group.pages.length}</span>
+                <span class="kit-nav__hidden">, {group.pages.length} pages</span>
+              </span>}
+            </a>
+          </li>;
+        })}
+      </ul>
+      {showPages && <ul
+        class="kit-nav__row kit-nav__pages"
+        data-kit-tint={currentGroup.kind.key}
+        aria-label={currentGroup.name}
+      >
+        {currentGroup.pages.map((entry) => <li>
+          <a
+            class="kit-nav__pill"
+            href={href(entry.slug)}
+            aria-current={entry === page ? "page" : undefined}
           >
-            {currentGroup.pages.map((entry) => (
-              <li>
-                <a
-                  class="kit-nav__pill"
-                  href={href(entry.slug)}
-                  aria-current={entry === page ? "page" : undefined}
-                >
-                  {entry.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-        <Fragment set:html={revealCurrent} />
-      </nav>
-    </>
-  ) : (
-    <nav class="kit-pager" aria-label="Previous and next page">
-      {previous ? (
-        <a
-          class="kit-pager__link"
-          data-kit-tint={groupOf.get(previous)!.kind.key}
-          href={href(previous.slug)}
-        >
-          <span class="kit-pager__meta">
-            <span aria-hidden="true">←</span> Previous
-            <span class="kit-pager__group">{groupOf.get(previous)!.name}</span>
-          </span>
-          <span class="kit-pager__label">{previous.label}</span>
-        </a>
-      ) : (
-        <span />
-      )}
-      {next && (
-        <a
-          class="kit-pager__link kit-pager__link--next"
-          data-kit-tint={groupOf.get(next)!.kind.key}
-          href={href(next.slug)}
-        >
-          <span class="kit-pager__meta">
-            <span class="kit-pager__group">{groupOf.get(next)!.name}</span>
-            Next <span aria-hidden="true">→</span>
-          </span>
-          <span class="kit-pager__label">{next.label}</span>
-        </a>
-      )}
+            {entry.label}
+          </a>
+        </li>)}
+      </ul>}
+      <Fragment set:html={revealCurrent} />
     </nav>
-  )
-}
+  </>
+) : (
+  <nav class="kit-pager" aria-label="Previous and next page">
+    {previous ? (
+      <a
+        class="kit-pager__link"
+        data-kit-tint={groupOf.get(previous)!.kind.key}
+        href={href(previous.slug)}
+      >
+        <span class="kit-pager__meta">
+          <span aria-hidden="true">←</span> Previous
+          <span class="kit-pager__group">{groupOf.get(previous)!.name}</span>
+        </span>
+        <span class="kit-pager__label">{previous.label}</span>
+      </a>
+    ) : (
+      <span />
+    )}
+    {next && <a
+      class="kit-pager__link kit-pager__link--next"
+      data-kit-tint={groupOf.get(next)!.kind.key}
+      href={href(next.slug)}
+    >
+      <span class="kit-pager__meta">
+        <span class="kit-pager__group">{groupOf.get(next)!.name}</span>
+        Next <span aria-hidden="true">→</span>
+      </span>
+      <span class="kit-pager__label">{next.label}</span>
+    </a>}
+  </nav>
+)}
 
 <style>
   /* The navigation spans the content grid above the table of contents and the page, so the

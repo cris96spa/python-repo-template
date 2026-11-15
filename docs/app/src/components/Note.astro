@@ -19,7 +19,7 @@ const wrapperClass = ["note", `note--${variant}`, className]
 
 <div class={wrapperClass} {...props}>
   {title ? (
-    <!-- When there's a title, emoji is inline with title -->
+    // When there's a title, emoji is inline with title
     <div class="note__body">
       <div class="note__header">
         {emoji && <span class="note__emoji-inline" aria-hidden="true">{emoji}</span>}
@@ -30,7 +30,7 @@ const wrapperClass = ["note", `note--${variant}`, className]
       </div>
     </div>
   ) : (
-    <!-- When there's no title, emoji is above content -->
+    // When there's no title, emoji is above content
     <div class="note__layout">
       {
         emoji && (

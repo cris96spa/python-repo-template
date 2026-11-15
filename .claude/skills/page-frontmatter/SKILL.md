@@ -18,14 +18,12 @@ subtitle: "Bring the template's later changes into your project."
 description: "How the update script replays the template's changes onto a branch for review."
 authors: []
 template: "article"
-showPdf: false
-licence: "Built with Thibaud Frere's research-article-template (CC BY 4.0)."
+licence: "Built with a modified version of Thibaud Frere's research-article-template (CC BY 4.0)."
 ---
 ```
 
-Keep `showPdf: false`: the site has no PDF export, and the field defaults to `true`, which
-shows a download button with nothing behind it. Keep the `licence` note, which credits the
-engine in the footer of the page as its CC BY 4.0 licence requires.
+Keep the `licence` note, which credits the engine in the footer of the page and says it is
+modified, as its CC BY 4.0 licence requires.
 
 ## Frontmatter fields
 
@@ -38,7 +36,6 @@ engine in the footer of the page as its CC BY 4.0 licence requires.
 | `affiliations` | array | `[]` | Affiliations the authors refer to (see below). |
 | `published` | string | — | Publication date shown in the hero, e.g. `"Apr. 04, 2026"`. |
 | `template` | `"article"` or `"paper"` | `"article"` | Layout variant (see below). |
-| `showPdf` | boolean | `true` | Shows a PDF download button. Set it to `false`. |
 | `tableOfContentsAutoCollapse` | boolean | `false` | Collapses table-of-contents sections while scrolling. |
 | `licence` | string | — | Licence note (HTML allowed), shown in the footer. |
 | `doi` | string | — | DOI identifier, shown in the hero and the footer. |

@@ -47,11 +47,7 @@ await cp(app, stage, {
   filter: (source) => {
     const path = relative(app, source).split(sep);
     return !path.some(
-      (part) =>
-        ["node_modules", ".astro", "dist", "screenshots", "output"].includes(part) ||
-        part.startsWith(".env") ||
-        part.startsWith("thumb.auto.") ||
-        part.endsWith(".pdf"),
+      (part) => ["node_modules", ".astro", "dist"].includes(part) || part.startsWith(".env"),
     );
   },
 });
@@ -169,10 +165,17 @@ if (command === "dev") {
   watchers.push(pageWatcher);
 }
 
-const astro = resolve(root, "node_modules/astro/astro.js");
+// The command-line entry is the one Astro's package.json declares, so a release that moves it
+// still starts.
+const astroPackage = join(root, "node_modules/astro/package.json");
+const { bin } = JSON.parse(await readFile(astroPackage, "utf8"));
+const astro = resolve(dirname(astroPackage), typeof bin === "string" ? bin : bin.astro);
 const flags = command === "dev" ? [] : ["--outDir", output];
 if (command !== "build") {
-  flags.push("--host", "127.0.0.1");
+  // Astro detaches a server it believes an AI agent started, and this process removes the
+  // server's copy as soon as Astro returns. --ignore-lock keeps the server in the foreground;
+  // the lock it skips guards one server per project, and each server here has its own copy.
+  flags.push("--host", "127.0.0.1", "--ignore-lock");
   if (!args.some((arg) => arg === "--port" || arg.startsWith("--port="))) {
     flags.push("--port", command === "dev" ? "8031" : "8033");
   }

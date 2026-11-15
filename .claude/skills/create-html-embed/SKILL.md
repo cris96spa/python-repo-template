@@ -36,7 +36,7 @@ Clarify with the user:
 - Root class: `.d3-<descriptive-name>` (must match the filename)
 
 `docs/embeds/banner.html` is the figure the engine draws at the top of every page; keep that
-name for it. Never put an embed in `docs/app/`, which is the upstream engine.
+name for it. Never put an embed in `docs/app/`, which is the engine the template maintains.
 
 ### Step 3: Follow the mandatory structure
 

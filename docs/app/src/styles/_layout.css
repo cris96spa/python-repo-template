@@ -267,15 +267,6 @@
   padding: 0 16px;
 }
 
-.paper-hero-banner :global(.html-embed) {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.paper-hero-banner :global(.html-embed__card) {
-  border-radius: 8px;
-}
-
 /* Thin separator between banner area and content */
 [data-template="paper"] .paper-hero-banner + .content-grid {
   margin-top: 48px;

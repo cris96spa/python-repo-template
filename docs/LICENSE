@@ -31,3 +31,7 @@ For the source code and technical implementation:
 - The source code is available at: https://huggingface.co/spaces/tfrere/research-article-template
 - Third-party figures and assets are excluded from this license and marked in their captions
 - Dependencies and third-party libraries maintain their respective licenses
+
+Changes: the engine in app/ is a modified version of the source above. Its dependencies are
+upgraded and the export and import tools a documentation site does not use are removed;
+template-provenance.json records the upstream commit it is derived from and lists every change.

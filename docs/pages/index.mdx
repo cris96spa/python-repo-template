@@ -4,8 +4,7 @@ subtitle: "A Python project with its tooling already in place."
 description: "What a project created from the template contains, how to start working in it, and where things live."
 authors: []
 template: "article"
-showPdf: false
-licence: "Built with Thibaud Frere's research-article-template (CC BY 4.0)."
+licence: "Built with a modified version of Thibaud Frere's research-article-template (CC BY 4.0)."
 ---
 
 import Accordion from "../../components/Accordion.astro";
@@ -95,10 +94,9 @@ when you [update from the template](/updating-from-template/).
 
 ## Write the documentation
 
-These pages are MDX files in `docs/pages/`, built into a static site by the
-[Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine. The engine runs
-on Node.js 22.12 or later, which the Python tooling does not need, so install it only when
-you work on the documentation:
+These pages are MDX files in `docs/pages/`, built into a static site by the engine in
+`docs/app/`. The engine runs on Node.js 22.23.4 or later, which the Python tooling does not
+need, so install it only when you work on the documentation:
 
 ```sh
 make install-docs
@@ -118,7 +116,7 @@ make doc-check
 ```
 
 <Note title="Leave docs/app/ as it is" variant="info">
-  `docs/app/` is the engine, kept exactly as upstream ships it, and
+  `docs/app/` is the engine, which changes only in the template, and
   `make doc-check` fails when one of its files changes. Your pages
   go in `docs/pages/`, your figures in `docs/embeds/`, and your
   images and data in `docs/assets/`.

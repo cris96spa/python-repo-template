@@ -36,7 +36,7 @@ lint-fix: # check and fix the code style
 lint-doc: # check the docstring style
 	uv run flake8 $(PYTHON_TARGETS)
 
-install-docs: # install the documentation toolchain; needs Node.js 22.12 or later
+install-docs: # install the documentation toolchain; needs Node.js 22.23.4 or later
 	npm ci --prefix docs
 
 doc: # serve the documentation on a local server that reloads on change

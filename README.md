@@ -84,7 +84,7 @@ docker build -t python-repo-template .
 
 ### Documentation
 
-The documentation is a static site, built from the MDX pages in `docs/pages/` by the [Latent Writing Lab](https://github.com/cris96spa/latent-writing-lab) engine. The engine needs [Node.js](https://nodejs.org/) 22.12 or later, which the rest of the template does not. Install the toolchain once, then serve the site at <http://127.0.0.1:8031/>:
+The documentation is a static site, built from the MDX pages in `docs/pages/` by the engine in `docs/app/`. The engine needs [Node.js](https://nodejs.org/) 22.23.4 or later, which the rest of the template does not. Install the toolchain once, then serve the site at <http://127.0.0.1:8031/>:
 
 ```bash
 make install-docs
@@ -97,7 +97,7 @@ Check the links and the build before pushing:
 make doc-check
 ```
 
-The engine in `docs/app/` is Thibaud Frere's [research-article-template](https://github.com/tfrere/research-article-template), licensed under [CC BY 4.0](docs/LICENSE). [docs/README.md](docs/README.md) explains the folder.
+The engine in `docs/app/` is a modified version of Thibaud Frere's [research-article-template](https://github.com/tfrere/research-article-template), licensed under [CC BY 4.0](docs/LICENSE). [docs/README.md](docs/README.md) explains the folder and where the changes are recorded.
 
 ### Github Actions
 

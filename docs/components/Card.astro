@@ -19,35 +19,23 @@ const Tag = href ? "a" : "div";
 ---
 
 <Tag class="kit-card" href={href} data-kit-tint={kind?.key ?? "accent"}>
-  {
-    (icon || kind) && (
-      <span class="kit-card__head">
-        {icon && (
-          <span class="kit-card__icon" aria-hidden="true">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              set:html={icon}
-            />
-          </span>
-        )}
-        {kind && <span class="kit-card__kind">{kind.label}</span>}
-      </span>
-    )
-  }
+  {(icon || kind) && <span class="kit-card__head">
+    {icon && <span class="kit-card__icon" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={icon}
+      />
+    </span>}
+    {kind && <span class="kit-card__kind">{kind.label}</span>}
+  </span>}
   <span class="kit-card__title">
     {title}
-    {
-      href && (
-        <span class="kit-card__arrow" aria-hidden="true">
-          →
-        </span>
-      )
-    }
+    {href && <span class="kit-card__arrow" aria-hidden="true"> → </span>}
   </span>
   <div class="kit-card__text"><slot /></div>
 </Tag>

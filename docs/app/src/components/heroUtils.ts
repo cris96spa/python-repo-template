@@ -15,8 +15,6 @@ export interface HeroProps {
   affiliation?: string;
   published?: string;
   doi?: string;
-  pdfProOnly?: boolean;
-  showPdf?: boolean;
   links?: Array<{ label: string; url: string; icon?: string }>;
 }
 
