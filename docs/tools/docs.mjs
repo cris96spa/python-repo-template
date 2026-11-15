@@ -1,3 +1,4 @@
+import "./check-toolchain.mjs";
 import { spawn } from "node:child_process";
 import { watch } from "node:fs";
 import { access, cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";

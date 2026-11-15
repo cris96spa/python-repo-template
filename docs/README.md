@@ -1,8 +1,9 @@
 # Documentation
 
 The project's documentation is a static site built from the MDX pages in `pages/`. Run
-`make doc` from the repository root and open http://127.0.0.1:8031/ to read it. The
-[overview page](pages/index.mdx) explains how to install the toolchain and add a page.
+`make doc` from the repository root, after `make install-docs` the first time, and open
+http://127.0.0.1:8031/ to read it. The [overview page](pages/index.mdx) explains how to install
+the toolchain and add a page.
 
 | Folder         | Holds                                                                                    | Owner        |
 | -------------- | ---------------------------------------------------------------------------------------- | ------------ |

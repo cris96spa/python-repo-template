@@ -1,7 +1,10 @@
+import "./check-toolchain.mjs";
 import { access, readFile, readdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import GithubSlugger from "github-slugger";
+
+// A static import would be resolved before the toolchain check runs.
+const { default: GithubSlugger } = await import("github-slugger");
 
 // Paths are reported relative to the repository root, which holds this workspace in docs/.
 const repository = fileURLToPath(new URL("../../", import.meta.url));

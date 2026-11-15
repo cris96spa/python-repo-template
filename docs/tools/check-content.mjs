@@ -1,3 +1,4 @@
+import "./check-toolchain.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
