@@ -18,12 +18,11 @@ subtitle: "Bring the template's later changes into your project."
 description: "How the update script replays the template's changes onto a branch for review."
 authors: []
 template: "article"
-licence: "Built with a modified version of Thibaud Frere's research-article-template (CC BY 4.0)."
+licence: "Built with Thibaud Frere's research-article-template (CC BY 4.0)."
 ---
 ```
 
-Keep the `licence` note, which credits the engine in the footer of the page and says it is
-modified, as its CC BY 4.0 licence requires.
+Keep the `licence` note, which credits the engine in the footer of the page.
 
 ## Frontmatter fields
 
